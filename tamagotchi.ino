@@ -1,42 +1,34 @@
-/*
- An example analogue clock using a TFT LCD screen to show the time
- use of some of the drawing commands with the ST7735 library.
-
- For a more accurate clock, it would be better to use the RTClib library.
- But this is just a demo. 
-
- Uses compile time to set the time so a reset will start with the compile time again
- 
- Gilchrist 6/2/2014 1.0
- Updated by Bodmer
- */
-
+// All includes
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h>
 #include "Button2.h"
 #include "esp_adc_cal.h"
 #include "bmp.h"
 
-// Button code
+// All defines
 #define ADC_EN              14  //ADC_EN is the ADC detection enable port
 #define ADC_PIN             34
 #define BUTTON_R            35
 #define BUTTON_L            0
 
-// Globals
+// All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
 String menu = "";
 RTC_DATA_ATTR int age = 0;
+RTC_DATA_ATTR unsigned char brightness = 255;
 
+// Main functions
 void setup(void) {
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   tft.drawCentreString("Button TFT",64,130,4);
-  
+  configPins();
+  setBrightness(brightness);
+
   btnR.setReleasedHandler(right);
   btnL.setReleasedHandler(left);
 }
@@ -46,8 +38,22 @@ void loop() {
   button_loop();
 }
 
-//! Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
+// Screen Brightness code
+void setBrightness(uint32_t newBrightness)
+{
+  ledcWrite(0, newBrightness); // Max is 255, 0 is screen off
+}
+
+void configPins()
+{
+  pinMode(TFT_BL, OUTPUT);
+  ledcSetup(0, 5000, 8);
+  ledcAttachPin(TFT_BL, 0);
+}
+
+// Sleep code
 void espDelay(int ms)
+// Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 {
     esp_sleep_enable_timer_wakeup(ms * 1000);
     esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
@@ -68,7 +74,7 @@ void deep_sleep()
   esp_deep_sleep_start();
 }
 
-
+// Button code
 void button_loop()
 {
   btnR.loop();
