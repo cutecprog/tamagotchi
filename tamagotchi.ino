@@ -23,13 +23,13 @@ int counter;
 // Main functions
 void setup(void) {
   tft.init();
+  configPins();
+  setBrightness(brightness);
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   tft.drawCentreString("Button TFT",64,130,4);
-  configPins();
-  setBrightness(brightness);
-
+  
   btnR.setReleasedHandler(right);
   btnL.setReleasedHandler(left);
 }
