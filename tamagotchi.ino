@@ -28,6 +28,7 @@ TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
 String menu = "";
+RTC_DATA_ATTR int age = 0;
 
 void setup(void) {
   tft.init();
@@ -35,12 +36,13 @@ void setup(void) {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   tft.drawCentreString("Button TFT",64,130,4);
-
+  
   btnR.setReleasedHandler(right);
   btnL.setReleasedHandler(left);
 }
 
 void loop() {
+  tft.drawCentreString(String(age + millis()/1000),64,0,4);
   button_loop();
 }
 
@@ -54,6 +56,8 @@ void espDelay(int ms)
 
 void deep_sleep()
 {
+  age += millis()/1000; // saving seconds awake
+  
   tft.fillScreen(TFT_BLACK); // Clear out screen so screen is blank when coming back from sleep
   tft.writecommand(TFT_DISPOFF);
   tft.writecommand(TFT_SLPIN);
@@ -67,8 +71,8 @@ void deep_sleep()
 
 void button_loop()
 {
-    btnR.loop();
-    btnL.loop();
+  btnR.loop();
+  btnL.loop();
 }
 
 void left(Button2& btn)
@@ -98,7 +102,7 @@ void right(Button2& btn)
 void cancel(Button2& btn)
 {
   tft.drawCentreString("Cancel",64,130,4);
-  tft.drawCentreString(menu,64,0,4);
+  //tft.drawCentreString(menu,64,0,4);
   menu = "";
 }
 
@@ -106,7 +110,6 @@ void confirm(Button2& btn)
 {
   tft.drawCentreString("Confirm",64,130,4);
   tft.drawCentreString(menu,64,0,4);
-  //tft.drawCentreString(String(btn.getClickType()),64,200,4);
   menu = "";
 
   espDelay(2000);
