@@ -18,6 +18,7 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 RTC_DATA_ATTR int age = 0;
 RTC_DATA_ATTR unsigned char brightness = 255;
+int counter;
 
 // Main functions
 void setup(void) {
@@ -81,12 +82,20 @@ void button_loop()
   btnL.loop();
 }
 
+
+
 void left(Button2& btn)
 {
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > 600) {
     tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
     cancel(btn);
+  } else if (menu == "LLR") {
+    tft.drawCentreString("Brightness",64,130,4);
+    brightness -= (64>>counter);
+    setBrightness(brightness);
+    tft.drawCentreString(String(brightness),64,32,4);
+    counter++;
   } else {
     menu.concat("L");
     tft.drawCentreString(menu,64,130,4);
@@ -99,16 +108,29 @@ void right(Button2& btn)
   if (btn.wasPressedFor() > 600) {
     tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
     confirm(btn);
+  } else if (menu == "LLR") {
+    tft.drawCentreString("Brightness",64,130,4);
+    brightness += (64>>counter);
+    setBrightness(brightness);
+    tft.drawCentreString(String(brightness),64,32,4);
+    counter++;
+    return;
   } else {
     menu.concat("R");
     tft.drawCentreString(menu,64,130,4);
+    // Init brightness
+    if (menu == "LLR") {
+      counter = 0;
+      brightness = 128;
+      setBrightness(brightness);
+      tft.drawCentreString(String(brightness),64,32,4);
+    }
   }
 }
 
 void cancel(Button2& btn)
 {
   tft.drawCentreString("Cancel",64,130,4);
-  //tft.drawCentreString(menu,64,0,4);
   menu = "";
 }
 
@@ -118,7 +140,8 @@ void confirm(Button2& btn)
   tft.drawCentreString(menu,64,0,4);
   menu = "";
 
-  espDelay(2000);
+  //espDelay(2000);
+  delay(2000);
   
   // Deep sleep
   deep_sleep();
