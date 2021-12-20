@@ -16,7 +16,7 @@ TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
 String menu = "";
-RTC_DATA_ATTR int age = 0;
+RTC_DATA_ATTR uint32_t age = 0;
 RTC_DATA_ATTR unsigned char brightness = 255;
 int counter;
 
@@ -35,8 +35,27 @@ void setup(void) {
 }
 
 void loop() {
-  tft.drawCentreString(String(age + millis()/1000),64,0,4);
+  printHMS(age + millis()/1000);
   button_loop();
+}
+
+// Utility code
+void printHMS(uint32_t t)
+{
+  uint32_t s, m, h;
+  String hms;
+  s = t % 60;
+  t = (t - s)/60;
+  m = t % 60;
+  t = (t - m)/60;
+  h = t;
+  hms = (h <=9) ? "0" : "";
+  hms.concat(String(h));
+  hms.concat(String((m <=9) ?":0" : ":"));
+  hms.concat(String(m));
+  hms.concat(String((s <=9) ?":0" : ":"));
+  hms.concat(String(s));
+  tft.drawCentreString(hms,64,0,2);
 }
 
 // Screen Brightness code
@@ -71,7 +90,7 @@ void deep_sleep()
   //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
   esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
-  delay(200);
+  delay(200); // This delay is important
   esp_deep_sleep_start();
 }
 
@@ -86,7 +105,6 @@ void button_handler(Button2& btn)
 {
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > 600) {
-    //tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
     if (btn == btnL)
       home_screen(btn);
     else
