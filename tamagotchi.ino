@@ -12,6 +12,9 @@
 #define BUTTON_L            0
 #define TFT_AMBER           0xfca0
 
+#define HOME                128
+#define BRIGHTNESS          48
+
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 Button2 btnR(BUTTON_R);
@@ -37,7 +40,9 @@ void setup(void) {
 }
 
 void loop() {
-  printHMS(age + millis()/1000);
+  if (menu_selection == HOME) {
+    printHMS(age + millis()/1000);
+  }
   button_loop();
 }
 
@@ -111,24 +116,32 @@ void button_handler(Button2& btn)
       home_screen();
     else
       confirm(btn);
-  } else if (menu_selection == 48) {
+    return;
+  }
+  // main switch-case
+  switch(menu_selection) {
+  case BRIGHTNESS:
     tft.drawCentreString("Brightness",64,130,4);
     brightness += (btn==btnL) ? -counter : counter;
     counter>>=1;
     setBrightness(brightness);
     tft.drawCentreString(String(brightness),64,32,4);
-  } else {
+  break;
+  default:
     menu.concat((btn==btnL) ? "L" : "R");
     menu_selection += (btn==btnL) ? -counter : counter;
     counter>>=1;
     tft.drawCentreString(menu,64,130,4);
     tft.drawCentreString(String(menu_selection),64,180,4);
-    // Init brightness
-    if (menu == "LLR") {
+    // init and display switch-case
+    switch(menu_selection) {
+    case BRIGHTNESS:
       counter = 64;
       brightness = 128;
       setBrightness(brightness);
+      tft.drawCentreString("Brightness",64,130,4);
       tft.drawCentreString(String(brightness),64,32,4);
+    break;
     }
   }
 }
@@ -137,7 +150,7 @@ void home_screen()
 {
   tft.drawCentreString("Home",64,130,4);
   menu = "";
-  menu_selection = 128;
+  menu_selection = HOME;
   counter = 64;
 }
 
