@@ -30,8 +30,8 @@ void setup(void) {
   tft.setTextColor(TFT_GREEN, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   tft.drawCentreString("Button TFT",64,130,4);
   
-  btnR.setReleasedHandler(right);
-  btnL.setReleasedHandler(left);
+  btnR.setReleasedHandler(button_handler);
+  btnL.setReleasedHandler(button_handler);
 }
 
 void loop() {
@@ -82,41 +82,23 @@ void button_loop()
   btnL.loop();
 }
 
-
-
-void left(Button2& btn)
+void button_handler(Button2& btn)
 {
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > 600) {
     tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
-    cancel(btn);
+    if (btn == btnL)
+      cancel(btn);
+    else
+      confirm(btn);
   } else if (menu == "LLR") {
     tft.drawCentreString("Brightness",64,130,4);
-    brightness -= (64>>counter);
+    brightness += (btn==btnL) ? -(64>>counter) : 64>>counter;
     setBrightness(brightness);
     tft.drawCentreString(String(brightness),64,32,4);
     counter++;
   } else {
-    menu.concat("L");
-    tft.drawCentreString(menu,64,130,4);
-  }
-}
-
-void right(Button2& btn)
-{
-  tft.fillScreen(TFT_BLACK);
-  if (btn.wasPressedFor() > 600) {
-    tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
-    confirm(btn);
-  } else if (menu == "LLR") {
-    tft.drawCentreString("Brightness",64,130,4);
-    brightness += (64>>counter);
-    setBrightness(brightness);
-    tft.drawCentreString(String(brightness),64,32,4);
-    counter++;
-    return;
-  } else {
-    menu.concat("R");
+    menu.concat((btn==btnL) ? "L" : "R");
     tft.drawCentreString(menu,64,130,4);
     // Init brightness
     if (menu == "LLR") {
@@ -140,7 +122,6 @@ void confirm(Button2& btn)
   tft.drawCentreString(menu,64,0,4);
   menu = "";
 
-  //espDelay(2000);
   delay(2000);
   
   // Deep sleep
