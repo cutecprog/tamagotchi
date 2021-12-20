@@ -10,6 +10,7 @@
 #define ADC_PIN             34
 #define BUTTON_R            35
 #define BUTTON_L            0
+#define TFT_AMBER           0xfca0
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
@@ -27,7 +28,7 @@ void setup(void) {
   setBrightness(brightness);
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
-  tft.setTextColor(TFT_GREEN, TFT_BLACK);  // Adding a black background colour erases previous text automatically
+  tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   tft.drawCentreString("Home",64,130,4);
   
   btnR.setReleasedHandler(button_handler);
