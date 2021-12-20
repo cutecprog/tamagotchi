@@ -19,6 +19,7 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 RTC_DATA_ATTR uint32_t age = 0;
 RTC_DATA_ATTR unsigned char brightness = 255;
+unsigned char menu_selection;
 int counter;
 
 // Main functions
@@ -29,7 +30,7 @@ void setup(void) {
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
-  tft.drawCentreString("Home",64,130,4);
+  home_screen();
   
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
@@ -107,21 +108,24 @@ void button_handler(Button2& btn)
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > 600) {
     if (btn == btnL)
-      home_screen(btn);
+      home_screen();
     else
       confirm(btn);
-  } else if (menu == "LLR") {
+  } else if (menu_selection == 48) {
     tft.drawCentreString("Brightness",64,130,4);
-    brightness += (btn==btnL) ? -(64>>counter) : 64>>counter;
+    brightness += (btn==btnL) ? -counter : counter;
+    counter>>=1;
     setBrightness(brightness);
     tft.drawCentreString(String(brightness),64,32,4);
-    counter++;
   } else {
     menu.concat((btn==btnL) ? "L" : "R");
+    menu_selection += (btn==btnL) ? -counter : counter;
+    counter>>=1;
     tft.drawCentreString(menu,64,130,4);
+    tft.drawCentreString(String(menu_selection),64,180,4);
     // Init brightness
     if (menu == "LLR") {
-      counter = 0;
+      counter = 64;
       brightness = 128;
       setBrightness(brightness);
       tft.drawCentreString(String(brightness),64,32,4);
@@ -129,10 +133,12 @@ void button_handler(Button2& btn)
   }
 }
 
-void home_screen(Button2& btn)
+void home_screen()
 {
   tft.drawCentreString("Home",64,130,4);
   menu = "";
+  menu_selection = 128;
+  counter = 64;
 }
 
 void confirm(Button2& btn)
