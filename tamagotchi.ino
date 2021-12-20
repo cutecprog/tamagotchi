@@ -28,7 +28,7 @@ void setup(void) {
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);  // Adding a black background colour erases previous text automatically
-  tft.drawCentreString("Button TFT",64,130,4);
+  tft.drawCentreString("Home",64,130,4);
   
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
@@ -86,9 +86,9 @@ void button_handler(Button2& btn)
 {
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > 600) {
-    tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
+    //tft.drawCentreString(String(btn.wasPressedFor()),64,200,4);
     if (btn == btnL)
-      cancel(btn);
+      home_screen(btn);
     else
       confirm(btn);
   } else if (menu == "LLR") {
@@ -110,20 +110,18 @@ void button_handler(Button2& btn)
   }
 }
 
-void cancel(Button2& btn)
+void home_screen(Button2& btn)
 {
-  tft.drawCentreString("Cancel",64,130,4);
+  tft.drawCentreString("Home",64,130,4);
   menu = "";
 }
 
 void confirm(Button2& btn)
 {
-  tft.drawCentreString("Confirm",64,130,4);
+  tft.drawCentreString("Deep Sleep",64,130,4);
   tft.drawCentreString(menu,64,0,4);
   menu = "";
-
-  delay(2000);
-  
+  delay(1000);
   // Deep sleep
   deep_sleep();
 }
