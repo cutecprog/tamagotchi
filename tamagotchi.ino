@@ -14,6 +14,7 @@
 
 #define HOME                128
 #define BRIGHTNESS          48
+#define TAMAGOTCHI          192
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
@@ -108,6 +109,49 @@ void button_loop()
   btnL.loop();
 }
 
+void menu_init()
+{
+  // init and display switch-case
+  switch(menu_selection) {
+  case BRIGHTNESS:
+    counter = 64;
+    brightness = 128;
+    setBrightness(brightness);
+    tft.drawCentreString("Brightness",64,130,4);
+    tft.drawCentreString(String(brightness),64,32,4);
+  break;
+  case TAMAGOTCHI:
+    tft.fillScreen(TFT_BLACK);
+    tft.drawCentreString("Tamagotchi",64,0,2);
+    break;
+  }
+}
+
+void menu_loop(Button2& btn)
+{
+  // main switch-case
+  switch(menu_selection) {
+  case BRIGHTNESS:
+    tft.drawCentreString("Brightness",64,130,4);
+    brightness += (btn==btnL) ? -counter : counter;
+    counter>>=1;
+    setBrightness(brightness);
+    tft.drawCentreString(String(brightness),64,32,4);
+  break;
+  case TAMAGOTCHI:
+    tft.drawCentreString("Tamagotchi",64,0,2);
+    break;
+  default:
+    // Select menu
+    menu.concat((btn==btnL) ? "L" : "R");
+    menu_selection += (btn==btnL) ? -counter : counter;
+    counter>>=1;
+    tft.drawCentreString(menu,64,130,4);
+    tft.drawCentreString(String(menu_selection),64,180,4);
+    menu_init(); 
+  }
+}
+
 void button_handler(Button2& btn)
 {
   tft.fillScreen(TFT_BLACK);
@@ -118,32 +162,7 @@ void button_handler(Button2& btn)
       confirm(btn);
     return;
   }
-  // main switch-case
-  switch(menu_selection) {
-  case BRIGHTNESS:
-    tft.drawCentreString("Brightness",64,130,4);
-    brightness += (btn==btnL) ? -counter : counter;
-    counter>>=1;
-    setBrightness(brightness);
-    tft.drawCentreString(String(brightness),64,32,4);
-  break;
-  default:
-    menu.concat((btn==btnL) ? "L" : "R");
-    menu_selection += (btn==btnL) ? -counter : counter;
-    counter>>=1;
-    tft.drawCentreString(menu,64,130,4);
-    tft.drawCentreString(String(menu_selection),64,180,4);
-    // init and display switch-case
-    switch(menu_selection) {
-    case BRIGHTNESS:
-      counter = 64;
-      brightness = 128;
-      setBrightness(brightness);
-      tft.drawCentreString("Brightness",64,130,4);
-      tft.drawCentreString(String(brightness),64,32,4);
-    break;
-    }
-  }
+  menu_loop(btn);
 }
 
 void home_screen()
