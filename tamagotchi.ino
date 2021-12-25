@@ -26,6 +26,10 @@ RTC_DATA_ATTR unsigned char brightness = 255;
 unsigned char menu_selection;
 int counter;
 
+RTC_DATA_ATTR struct {
+  int i = 57;
+} tama;
+
 // Main functions
 void setup(void) {
   tft.init();
@@ -69,9 +73,9 @@ void printHMS(uint32_t t)
 }
 
 // Screen Brightness code
-void set_brightness(uint32_t newBrightness)
+void set_brightness(uint32_t n)
 {
-  ledcWrite(0, newBrightness); // Max is 255, 0 is screen off
+  ledcWrite(0, n); // Max is 255, 0 is screen off
 }
 
 void init_brightness_control()
@@ -104,7 +108,7 @@ void deep_sleep()
   esp_deep_sleep_start();
 }
 
-// Button code
+// Menu code
 void menu_init()
 {
   // init and display switch-case
@@ -118,6 +122,7 @@ void menu_init()
   break;
   case TAMAGOTCHI:
     tft.drawCentreString("Tamagotchi",64,0,2);
+    tama.i =0;
   break;
   default:
     tft.drawCentreString(menu,64,130,4);
@@ -164,6 +169,7 @@ void button_handler(Button2& btn)
 void home_screen()
 {
   tft.drawCentreString("Home",64,130,4);
+  tft.drawCentreString(String(tama.i),64,180,4);
   menu = "";
   menu_selection = HOME;
   counter = 64;
