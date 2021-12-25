@@ -121,9 +121,12 @@ void menu_init()
     tft.drawCentreString(String(brightness),64,32,4);
   break;
   case TAMAGOTCHI:
-    tft.fillScreen(TFT_BLACK);
+    //tft.fillScreen(TFT_BLACK);
     tft.drawCentreString("Tamagotchi",64,0,2);
-    break;
+  break;
+  default:
+    tft.drawCentreString(menu,64,130,4);
+    tft.drawCentreString(String(menu_selection),64,180,4);
   }
 }
 
@@ -140,14 +143,12 @@ void menu_loop(Button2& btn)
   break;
   case TAMAGOTCHI:
     tft.drawCentreString("Tamagotchi",64,0,2);
-    break;
+  break;
   default:
     // Select menu
     menu.concat((btn==btnL) ? "L" : "R");
     menu_selection += (btn==btnL) ? -counter : counter;
     counter>>=1;
-    tft.drawCentreString(menu,64,130,4);
-    tft.drawCentreString(String(menu_selection),64,180,4);
     menu_init(); 
   }
 }
