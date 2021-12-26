@@ -4,6 +4,10 @@
 #include "Button2.h"
 #include "esp_adc_cal.h"
 #include "bmp.h"
+#include <soc/rtc.h>
+extern "C" {
+  #include <esp_clk.h>
+}
 
 // All defines
 #define ADC_EN              14  //ADC_EN is the ADC detection enable port
@@ -21,17 +25,22 @@ TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
 String menu = "";
-RTC_DATA_ATTR uint32_t age = 0;
-RTC_DATA_ATTR unsigned char brightness = 255;
 unsigned char menu_selection;
 int counter;
 
+RTC_DATA_ATTR uint64_t age = 0;
+RTC_DATA_ATTR uint64_t sleepTime = 0;
+RTC_DATA_ATTR unsigned char brightness = 255;
 RTC_DATA_ATTR struct {
   int i = 57;
 } tama;
 
 // Main functions
 void setup(void) {
+  Serial.begin(115200);
+  //Serial.print(rtc_time_get());
+  //sleepTime = rtc_time_get();
+  //printf("Now: %"PRIu64"ms",sleepTime);
   tft.init();
   init_brightness_control();
   set_brightness(brightness);
@@ -46,7 +55,8 @@ void setup(void) {
 
 void loop() {
   if (menu_selection == HOME) {
-    printHMS(age + millis()/1000);
+    printHMS(age + millis()/1000, 0);
+    printHMS(rtc_time_get()/162700,20);
   }
   // Run button_handler if pressed
   btnR.loop();
@@ -54,7 +64,7 @@ void loop() {
 }
 
 // Utility code
-void printHMS(uint32_t t)
+void printHMS(uint32_t t, uint32_t y)
 {
   uint32_t s, m, h;
   String hms;
@@ -69,7 +79,7 @@ void printHMS(uint32_t t)
   hms.concat(String(m));
   hms.concat(String((s <=9) ?":0" : ":"));
   hms.concat(String(s));
-  tft.drawCentreString(hms,64,0,2);
+  tft.drawCentreString(hms,64,y,2);
 }
 
 // Screen Brightness code
