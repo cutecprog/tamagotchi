@@ -32,7 +32,7 @@ RTC_DATA_ATTR struct {
 
 // Main functions
 void setup(void) {
-  Serial.begin(115200);
+  //Serial.begin(115200);
   tft.init();
   init_brightness_control();
   set_brightness(brightness);
@@ -40,7 +40,7 @@ void setup(void) {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   home_screen();
-  // Set button_handler as the function called by loop() method
+
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
 }
@@ -104,15 +104,13 @@ void init_brightness_control()
 void espDelay(int ms)
 // Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
 {
-    esp_sleep_enable_timer_wakeup(ms * 1000);
-    esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
-    esp_light_sleep_start();
+  esp_sleep_enable_timer_wakeup(ms * 1000);
+  esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
+  esp_light_sleep_start();
 }
 
 void deep_sleep()
 {
-  //awakeTime += millis()/1000; // saving seconds awake
-  
   tft.fillScreen(TFT_BLACK); // Clear out screen so screen is blank when coming back from sleep
   tft.writecommand(TFT_DISPOFF);
   tft.writecommand(TFT_SLPIN);
@@ -128,20 +126,20 @@ void menu_init()
 {
   // init and display switch-case
   switch(menu_selection) {
-  case BRIGHTNESS:
-    counter = 64;
-    brightness = 128;
-    set_brightness(brightness);
-    tft.drawCentreString("Brightness",64,130,4);
-    tft.drawCentreString(String(brightness),64,32,4);
-  break;
-  case TAMAGOTCHI:
-    tft.drawCentreString("Tamagotchi",64,0,2);
-    tama.i =0;
-  break;
-  default:
-    tft.drawCentreString(menu,64,130,4);
-    tft.drawCentreString(String(menu_selection),64,180,4);
+    case BRIGHTNESS:
+      counter = 64;
+      brightness = 128;
+      set_brightness(brightness);
+      tft.drawCentreString("Brightness",64,130,4);
+      tft.drawCentreString(String(brightness),64,32,4);
+    break;
+    case TAMAGOTCHI:
+      tft.drawCentreString("Tamagotchi",64,0,2);
+      tama.i =0;
+    break;
+    default:
+      tft.drawCentreString(menu,64,130,4);
+      tft.drawCentreString(String(menu_selection),64,180,4);
   }
 }
 
@@ -149,22 +147,22 @@ void menu_loop(Button2& btn)
 {
   // main switch-case
   switch(menu_selection) {
-  case BRIGHTNESS:
-    tft.drawCentreString("Brightness",64,130,4);
-    brightness += (btn==btnL) ? -counter : counter;
-    counter>>=1;
-    set_brightness(brightness);
-    tft.drawCentreString(String(brightness),64,32,4);
-  break;
-  case TAMAGOTCHI:
-    tft.drawCentreString("Tamagotchi",64,0,2);
-  break;
-  default:
-    // Select menu
-    menu.concat((btn==btnL) ? "L" : "R");
-    menu_selection += (btn==btnL) ? -counter : counter;
-    counter>>=1;
-    menu_init(); 
+    case BRIGHTNESS:
+      tft.drawCentreString("Brightness",64,130,4);
+      brightness += (btn==btnL) ? -counter : counter;
+      counter>>=1;
+      set_brightness(brightness);
+      tft.drawCentreString(String(brightness),64,32,4);
+    break;
+    case TAMAGOTCHI:
+      tft.drawCentreString("Tamagotchi",64,0,2);
+    break;
+    default:
+      // Select menu
+      menu.concat((btn==btnL) ? "L" : "R");
+      menu_selection += (btn==btnL) ? -counter : counter;
+      counter>>=1;
+      menu_init(); 
   }
 }
 
