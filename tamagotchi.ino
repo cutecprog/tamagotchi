@@ -62,15 +62,19 @@ void setup(void) {
   Serial.print(time_offset_ms);*/
 }
 
+uint32_t rtc_time;
+
 void loop() {
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
-    clock_loop();  Serial.print("\n---------------------------------\n");
-    Serial.print(rtc_time_get()/162.7);
+    rtc_time = rtc_time_slowclk_to_us(rtc_time_get(), esp_clk_slowclk_cal_get())/1000;
+    Serial.print("\n---------------------------------\n");
+    Serial.print(rtc_time);
     Serial.print("\n");
     Serial.print(millis());
     Serial.print("\n");
-    Serial.print((int)(rtc_time_get()/162.7 - millis()));
-    clock_loop();  Serial.print("\n---------------------------------\n");
+    Serial.print((int)(rtc_time - millis()));
+    Serial.print("\n---------------------------------\n");
+    clock_loop();
   }
   // Run button_handler if pressed
   btnR.loop();
