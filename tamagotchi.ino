@@ -1,12 +1,11 @@
 // All includes
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
-#include <SPI.h>
 #include "Button2.h"
 #include <sys/time.h>
 
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
-//#define ADC_PIN             34
+#define ADC_PIN             34
 #define BUTTON_R            35
 #define BUTTON_L            0
 #define TFT_AMBER           0xfca0
@@ -23,8 +22,8 @@ String menu = "";
 unsigned char menu_selection;
 int counter;
 
+// All SRAM Globals
 RTC_DATA_ATTR timeval age;
-
 RTC_DATA_ATTR unsigned char brightness = 255;
 RTC_DATA_ATTR struct {
   int i = 57;
@@ -58,6 +57,7 @@ void clock_loop()
 {
   gettimeofday(&age, NULL);
   printHMS(age.tv_sec, 0);
+  tft.drawCentreString(String(analogRead(ADC_PIN)),64,20,4);
 }
 
 void printHMS(uint32_t t, uint32_t y)
