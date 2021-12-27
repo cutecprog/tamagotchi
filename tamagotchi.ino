@@ -2,19 +2,20 @@
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h>
 #include "Button2.h"
-#include "esp_adc_cal.h"
-#include "bmp.h"
+//#include "esp_adc_cal.h"
+//#include "bmp.h"
 #include <soc/rtc.h>
 extern "C" {
   #include <esp_clk.h>
 }
 
 // All defines
-#define ADC_EN              14  //ADC_EN is the ADC detection enable port
-#define ADC_PIN             34
+//#define ADC_EN              14  //ADC_EN is the ADC detection enable port
+//#define ADC_PIN             34
 #define BUTTON_R            35
 #define BUTTON_L            0
 #define TFT_AMBER           0xfca0
+//#define TIME_OFFSET_MS      185
 
 #define HOME                128
 #define BRIGHTNESS          48
@@ -27,9 +28,10 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 unsigned char menu_selection;
 int counter;
+int time_offset_ms;
 
-RTC_DATA_ATTR uint64_t age = 0;
-RTC_DATA_ATTR uint64_t sleepTime = 0;
+//RTC_DATA_ATTR uint64_t age = 0;
+RTC_DATA_ATTR uint64_t awakeTime = 0;
 RTC_DATA_ATTR unsigned char brightness = 255;
 RTC_DATA_ATTR struct {
   int i = 57;
@@ -51,19 +53,31 @@ void setup(void) {
   // Set button_handler as the function called by loop() method
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
+  /*Serial.print("\n");
+  Serial.print(rtc_time_get()/162.7);
+  Serial.print("\n");
+  Serial.print(millis());
+  time_offset_ms = (int)(rtc_time_get()/162.7 - millis());
+  Serial.print("\n");
+  Serial.print(time_offset_ms);*/
 }
 
 void loop() {
-  if (menu_selection == HOME) {
-    printHMS(age + millis()/1000, 0);
-    printHMS(rtc_time_get()/162700,20);
+  if ((menu_selection == HOME) && (millis()%1000 == 0)) {
+    clock_loop();
   }
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
 }
 
-// Utility code
+// Clock code
+void clock_loop()
+{
+  printHMS(awakeTime + millis()/1000, 0);
+  printHMS(rtc_time_get()/162700, 20); // 162700 figured through trial and error not sure if it's right
+}
+
 void printHMS(uint32_t t, uint32_t y)
 {
   uint32_t s, m, h;
@@ -72,13 +86,22 @@ void printHMS(uint32_t t, uint32_t y)
   t = (t - s)/60;
   m = t % 60;
   t = (t - m)/60;
-  h = t;
-  hms = (h <=9) ? "0" : "";
+  h = t % 24;
+  t = (t - h)/24;  // t holds the number of days
+
+  hms = "   ";
+  if (t > 0) {
+    hms.concat("Day ");
+    hms.concat(String(t));
+    hms.concat(String(" "));
+  }
+  hms.concat((h <=9) ? "0" : "");
   hms.concat(String(h));
-  hms.concat(String((m <=9) ?":0" : ":"));
+  hms.concat((m <=9) ?":0" : ":");
   hms.concat(String(m));
-  hms.concat(String((s <=9) ?":0" : ":"));
+  hms.concat((s <=9) ?":0" : ":");
   hms.concat(String(s));
+  hms.concat("   ");
   tft.drawCentreString(hms,64,y,2);
 }
 
@@ -106,7 +129,7 @@ void espDelay(int ms)
 
 void deep_sleep()
 {
-  age += millis()/1000; // saving seconds awake
+  awakeTime += millis()/1000; // saving seconds awake
   
   tft.fillScreen(TFT_BLACK); // Clear out screen so screen is blank when coming back from sleep
   tft.writecommand(TFT_DISPOFF);
@@ -180,6 +203,7 @@ void home_screen()
 {
   tft.drawCentreString("Home",64,130,4);
   tft.drawCentreString(String(tama.i),64,180,4);
+  clock_loop();
   menu = "";
   menu_selection = HOME;
   counter = 64;
