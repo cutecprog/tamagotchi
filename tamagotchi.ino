@@ -68,14 +68,15 @@ uint32_t last_rtc_time = 0;
 void loop() {
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     counter2++;
-    int32_t rtc_time = rtc_time_slowclk_to_us(rtc_time_get(), esp_clk_slowclk_cal_get());
+    //int32_t rtc_time = rtc_time_slowclk_to_us(rtc_time_get(), esp_clk_slowclk_cal_get());
     int32_t rtc_time2 = rtc_time_get();
+    int32_t rtc_time = rtc_time_get() / ((rtc_time2 - last_rtc_time)/1000.0);
     Serial.print("\n---------------------------------\nmillis: ");
     Serial.print(millis());
     Serial.print("\nRTC Time: ");
     Serial.print(rtc_time);
     Serial.print("\nOffset Constant: ");
-    Serial.print((int)(rtc_time/1000 - millis()));
+    Serial.print((int)(rtc_time - millis()));
     Serial.print("\nRAW RTC time: ");
     Serial.print(rtc_time2);
     Serial.print("\nDelta / s: ");
@@ -99,7 +100,7 @@ void loop() {
 void clock_loop()
 {
   printHMS(awakeTime + millis()/1000, 0);
-  printHMS(rtc_time_get()/162700, 20); // 162700 figured through trial and error not sure if it's right
+  printHMS(rtc_time_get()/162460, 20); // 162700 figured through trial and error not sure if it's right
 }
 
 void printHMS(uint32_t t, uint32_t y)
