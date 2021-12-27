@@ -28,6 +28,7 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 unsigned char menu_selection;
 int counter;
+int counter2 = 0;
 int time_offset_ms;
 
 //RTC_DATA_ATTR uint64_t age = 0;
@@ -62,17 +63,30 @@ void setup(void) {
   Serial.print(time_offset_ms);*/
 }
 
-uint32_t rtc_time;
-
+uint32_t first_rtc_time;
+uint32_t last_rtc_time = 0;
 void loop() {
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
-    rtc_time = rtc_time_slowclk_to_us(rtc_time_get(), esp_clk_slowclk_cal_get())/1000;
-    Serial.print("\n---------------------------------\n");
-    Serial.print(rtc_time);
-    Serial.print("\n");
+    counter2++;
+    int32_t rtc_time = rtc_time_slowclk_to_us(rtc_time_get(), esp_clk_slowclk_cal_get());
+    int32_t rtc_time2 = rtc_time_get();
+    Serial.print("\n---------------------------------\nmillis: ");
     Serial.print(millis());
-    Serial.print("\n");
-    Serial.print((int)(rtc_time - millis()));
+    Serial.print("\nRTC Time: ");
+    Serial.print(rtc_time);
+    Serial.print("\nOffset Constant: ");
+    Serial.print((int)(rtc_time/1000 - millis()));
+    Serial.print("\nRAW RTC time: ");
+    Serial.print(rtc_time2);
+    Serial.print("\nDelta / s: ");
+    if (counter2 == 1) {
+      first_rtc_time = rtc_time2;
+    } else {
+      Serial.print((int)(rtc_time2 - last_rtc_time));
+      Serial.print("\nAverage Delta / s: ");
+      Serial.print((int)((rtc_time2-first_rtc_time) / (counter2-1)));
+    }
+    last_rtc_time = rtc_time2;
     Serial.print("\n---------------------------------\n");
     clock_loop();
   }
