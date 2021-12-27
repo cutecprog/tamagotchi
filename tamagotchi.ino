@@ -60,6 +60,7 @@ void clock_loop()
 {
   gettimeofday(&age, NULL);
   printHMS(age.tv_sec, 0); 
+  tft.drawCentreString(String(age.tv_usec), 64, 60, 2);
 }
 
 void printHMS(uint32_t t, uint32_t y)
