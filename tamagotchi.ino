@@ -64,7 +64,13 @@ void setup(void) {
 
 void loop() {
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
-    clock_loop();
+    clock_loop();  Serial.print("\n---------------------------------\n");
+    Serial.print(rtc_time_get()/162.7);
+    Serial.print("\n");
+    Serial.print(millis());
+    Serial.print("\n");
+    Serial.print((int)(rtc_time_get()/162.7 - millis()));
+    clock_loop();  Serial.print("\n---------------------------------\n");
   }
   // Run button_handler if pressed
   btnR.loop();
