@@ -45,8 +45,11 @@ void setup(void) {
 }
 
 void loop() {
-  if ((menu_selection == HOME) && (millis()%1000 == 0))
+  if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
+    // Analog value that relates to battery voltage
+    tft.drawCentreString(String(analogRead(ADC_PIN)),64,20,4);
+  }
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
@@ -56,8 +59,7 @@ void loop() {
 void clock_loop()
 {
   gettimeofday(&age, NULL);
-  printHMS(age.tv_sec, 0);
-  tft.drawCentreString(String(analogRead(ADC_PIN)),64,20,4);
+  printHMS(age.tv_sec, 0); 
 }
 
 void printHMS(uint32_t t, uint32_t y)
@@ -85,40 +87,6 @@ void printHMS(uint32_t t, uint32_t y)
   hms.concat(String(s));
   hms.concat("   ");
   tft.drawCentreString(hms,64,y,2);
-}
-
-// Screen Brightness code
-void set_brightness(uint32_t n)
-{
-  ledcWrite(0, n); // Max is 255, 0 is screen off
-}
-
-void init_brightness_control()
-{
-  pinMode(TFT_BL, OUTPUT);
-  ledcSetup(0, 5000, 8);
-  ledcAttachPin(TFT_BL, 0);
-}
-
-// Sleep code
-void espDelay(int ms)
-// Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
-{
-  esp_sleep_enable_timer_wakeup(ms * 1000);
-  esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
-  esp_light_sleep_start();
-}
-
-void deep_sleep()
-{
-  tft.fillScreen(TFT_BLACK); // Clear out screen so screen is blank when coming back from sleep
-  tft.writecommand(TFT_DISPOFF);
-  tft.writecommand(TFT_SLPIN);
-  //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
-  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
-  delay(200); // This delay is important
-  esp_deep_sleep_start();
 }
 
 // Menu code
@@ -173,7 +141,7 @@ void button_handler(Button2& btn)
     if (btn == btnL)
       home_screen();
     else
-      confirm(btn);
+      deep_sleep();
     return;
   }
   menu_loop(btn);
@@ -189,12 +157,39 @@ void home_screen()
   counter = 64;
 }
 
-void confirm(Button2& btn)
+// Screen Brightness code
+void set_brightness(uint32_t n)
+{
+  ledcWrite(0, n); // Max is 255, 0 is screen off
+}
+
+void init_brightness_control()
+{
+  pinMode(TFT_BL, OUTPUT);
+  ledcSetup(0, 5000, 8);
+  ledcAttachPin(TFT_BL, 0);
+}
+
+// Sleep code
+void espDelay(int ms)
+// Long time delay, it is recommended to use shallow sleep, which can effectively reduce the current consumption
+{
+  esp_sleep_enable_timer_wakeup(ms * 1000);
+  esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_ON);
+  esp_light_sleep_start();
+}
+
+void deep_sleep()
 {
   tft.drawCentreString("Deep Sleep",64,130,4);
-  tft.drawCentreString(menu,64,0,4);
-  menu = "";
   delay(1000);
-  // Deep sleep
-  deep_sleep();
+  
+  tft.fillScreen(TFT_BLACK); // Clear out screen so screen is blank when coming back from sleep
+  tft.writecommand(TFT_DISPOFF);
+  tft.writecommand(TFT_SLPIN);
+  //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
+  delay(200); // This delay is important
+  esp_deep_sleep_start();
 }
