@@ -2,12 +2,7 @@
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h>
 #include "Button2.h"
-//#include "esp_adc_cal.h"
-//#include "bmp.h"
-#include <soc/rtc.h>
-extern "C" {
-  #include <esp_clk.h>
-}
+#include <sys/time.h>
 
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
@@ -15,7 +10,6 @@ extern "C" {
 #define BUTTON_R            35
 #define BUTTON_L            0
 #define TFT_AMBER           0xfca0
-//#define TIME_OFFSET_MS      185
 
 #define HOME                128
 #define BRIGHTNESS          48
@@ -28,11 +22,9 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 unsigned char menu_selection;
 int counter;
-int counter2 = 0;
-int time_offset_ms;
 
-//RTC_DATA_ATTR uint64_t age = 0;
-RTC_DATA_ATTR uint64_t awakeTime = 0;
+RTC_DATA_ATTR timeval age;
+
 RTC_DATA_ATTR unsigned char brightness = 255;
 RTC_DATA_ATTR struct {
   int i = 57;
@@ -41,9 +33,6 @@ RTC_DATA_ATTR struct {
 // Main functions
 void setup(void) {
   Serial.begin(115200);
-  //Serial.print(rtc_time_get());
-  //sleepTime = rtc_time_get();
-  //printf("Now: %"PRIu64"ms",sleepTime);
   tft.init();
   init_brightness_control();
   set_brightness(brightness);
@@ -54,43 +43,11 @@ void setup(void) {
   // Set button_handler as the function called by loop() method
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
-  /*Serial.print("\n");
-  Serial.print(rtc_time_get()/162.7);
-  Serial.print("\n");
-  Serial.print(millis());
-  time_offset_ms = (int)(rtc_time_get()/162.7 - millis());
-  Serial.print("\n");
-  Serial.print(time_offset_ms);*/
 }
 
-uint32_t first_rtc_time;
-uint32_t last_rtc_time = 0;
 void loop() {
-  if ((menu_selection == HOME) && (millis()%1000 == 0)) {
-    counter2++;
-    //int32_t rtc_time = rtc_time_slowclk_to_us(rtc_time_get(), esp_clk_slowclk_cal_get());
-    int32_t rtc_time2 = rtc_time_get();
-    int32_t rtc_time = rtc_time_get() / ((rtc_time2 - last_rtc_time)/1000.0);
-    Serial.print("\n---------------------------------\nmillis: ");
-    Serial.print(millis());
-    Serial.print("\nRTC Time: ");
-    Serial.print(rtc_time);
-    Serial.print("\nOffset Constant: ");
-    Serial.print((int)(rtc_time - millis()));
-    Serial.print("\nRAW RTC time: ");
-    Serial.print(rtc_time2);
-    Serial.print("\nDelta / s: ");
-    if (counter2 == 1) {
-      first_rtc_time = rtc_time2;
-    } else {
-      Serial.print((int)(rtc_time2 - last_rtc_time));
-      Serial.print("\nAverage Delta / s: ");
-      Serial.print((int)((rtc_time2-first_rtc_time) / (counter2-1)));
-    }
-    last_rtc_time = rtc_time2;
-    Serial.print("\n---------------------------------\n");
+  if ((menu_selection == HOME) && (millis()%1000 == 0))
     clock_loop();
-  }
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
@@ -99,8 +56,8 @@ void loop() {
 // Clock code
 void clock_loop()
 {
-  printHMS(awakeTime + millis()/1000, 0);
-  printHMS(rtc_time_get()/162460, 20); // 162700 figured through trial and error not sure if it's right
+  gettimeofday(&age, NULL);
+  printHMS(age.tv_sec, 0);
 }
 
 void printHMS(uint32_t t, uint32_t y)
@@ -154,7 +111,7 @@ void espDelay(int ms)
 
 void deep_sleep()
 {
-  awakeTime += millis()/1000; // saving seconds awake
+  //awakeTime += millis()/1000; // saving seconds awake
   
   tft.fillScreen(TFT_BLACK); // Clear out screen so screen is blank when coming back from sleep
   tft.writecommand(TFT_DISPOFF);
