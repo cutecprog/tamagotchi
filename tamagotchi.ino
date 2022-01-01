@@ -16,8 +16,9 @@
 #define TIME_OUT            20000  // Deep Sleep after 10 seconds
 
 #define CHARGING_VOLTS      2760
-#define FULL_CHARGE         2369
-#define LOWEST_VOLTS        1523
+#define MAX_VOLTS           2369
+#define MIN_VOLTS           1523
+#define VOLT_RANGE          846
 
 
 #ifdef __cplusplus
@@ -70,7 +71,7 @@ void loop() {
     // Analog value that relates to battery voltage
     //String volts = String((float)(analogRead(ADC_PIN)) / 4095*2*3.3*1.1);
     String volts = "  ";
-    volts.concat(String((analogRead(ADC_PIN)-LOWEST_VOLTS)*100/846));
+    volts.concat(String((analogRead(ADC_PIN)-MIN_VOLTS)*100/VOLT_RANGE));
     volts.concat("%  ");
     /*
     The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
@@ -78,10 +79,12 @@ void loop() {
     then double it (note above that Adafruit halves the voltage), then multiply that by the reference voltage of the ESP32 which 
     is 3.3V and then vinally, multiply that again by the ADC Reference Voltage of 1100mV.
     */
-    String temp = String((temprature_sens_read() - 32) / 1.8);
-    temp.concat(" C");
+    String temp = "  ";
+    //temp.concat(String((temprature_sens_read() - 32) / 1.8)));
+    temp.concat(String(temprature_sens_read()));
+    temp.concat(" F  ");
     tft.drawCentreString(volts,64,16,2);
-    tft.drawCentreString(temp,64,32,2);
+    tft.drawCentreString(temp,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
   }
   // Run button_handler if pressed
   btnR.loop();
