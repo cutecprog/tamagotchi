@@ -71,8 +71,8 @@ void loop() {
     // Analog value that relates to battery voltage
     //String volts = String((float)(analogRead(ADC_PIN)) / 4095*2*3.3*1.1);
     String volts = "  ";
-    volts.concat(String((analogRead(ADC_PIN)-MIN_VOLTS)*100/VOLT_RANGE));
-    volts.concat("%  ");
+    volts.concat(String(analogRead(ADC_PIN)-MIN_VOLTS));
+    volts.concat("/800  ");
     /*
     The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
     To convert the ADC integer value to a real voltage you’ll need to divide it by the maximum value of 4095,
