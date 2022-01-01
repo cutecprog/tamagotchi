@@ -16,9 +16,9 @@
 #define TIME_OUT            20000  // Deep Sleep after 10 seconds
 
 #define CHARGING_VOLTS      2760
-#define MAX_VOLTS           2369
+#define MAX_VOLTS           2323
 #define MIN_VOLTS           1523
-#define VOLT_RANGE          846
+#define VOLT_RANGE          800
 
 
 #ifdef __cplusplus
