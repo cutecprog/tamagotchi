@@ -13,10 +13,25 @@
 #define HOME                128
 #define BRIGHTNESS          48
 #define TAMAGOTCHI          192
-#define TIME_OUT            10000  // Deep Sleep after 10 seconds
+#define TIME_OUT            20000  // Deep Sleep after 10 seconds
+
+#define CHARGING_VOLTS      2760
+#define FULL_CHARGE         2369
+#define LOWEST_VOLTS        1523
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+uint8_t temprature_sens_read();
+#ifdef __cplusplus
+}
+#endif
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
+uint8_t temprature_sens_read();
+
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
 String menu = "";
@@ -53,7 +68,20 @@ void loop() {
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
     // Analog value that relates to battery voltage
-    tft.drawCentreString(String(analogRead(ADC_PIN)),64,20,4);
+    //String volts = String((float)(analogRead(ADC_PIN)) / 4095*2*3.3*1.1);
+    String volts = "  ";
+    volts.concat(String((analogRead(ADC_PIN)-LOWEST_VOLTS)*100/846));
+    volts.concat("%  ");
+    /*
+    The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
+    To convert the ADC integer value to a real voltage you’ll need to divide it by the maximum value of 4095,
+    then double it (note above that Adafruit halves the voltage), then multiply that by the reference voltage of the ESP32 which 
+    is 3.3V and then vinally, multiply that again by the ADC Reference Voltage of 1100mV.
+    */
+    String temp = String((temprature_sens_read() - 32) / 1.8);
+    temp.concat(" C");
+    tft.drawCentreString(volts,64,16,2);
+    tft.drawCentreString(temp,64,32,2);
   }
   // Run button_handler if pressed
   btnR.loop();
