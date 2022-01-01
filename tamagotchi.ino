@@ -13,6 +13,7 @@
 #define HOME                128
 #define BRIGHTNESS          48
 #define TAMAGOTCHI          192
+#define TIME_OUT            10000  // Deep Sleep after 10 seconds
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
@@ -21,6 +22,7 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 unsigned char menu_selection;
 int counter;
+uint32_t millis_until_sleep;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -42,9 +44,12 @@ void setup(void) {
 
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
+  millis_until_sleep = millis()+TIME_OUT; // Sleep after 10 seconds
 }
 
 void loop() {
+  if (millis() > millis_until_sleep)
+    deep_sleep();
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
     // Analog value that relates to battery voltage
@@ -60,7 +65,6 @@ void clock_loop()
 {
   gettimeofday(&age, NULL);
   printHMS(age.tv_sec, 0); 
-  tft.drawCentreString(String(age.tv_usec), 64, 60, 2);
 }
 
 void printHMS(uint32_t t, uint32_t y)
@@ -137,6 +141,7 @@ void menu_loop(Button2& btn)
 
 void button_handler(Button2& btn)
 {
+  millis_until_sleep = millis()+TIME_OUT; // Sleep after 10 seconds
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > 600) {
     if (btn == btnL)
