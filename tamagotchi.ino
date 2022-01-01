@@ -16,22 +16,12 @@
 #define TIME_OUT            20000  // Deep Sleep after 10 seconds
 
 #define CHARGING_VOLTS      2760
-#define MAX_VOLTS           2323
-#define MIN_VOLTS           1523
-#define VOLT_RANGE          800
-
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-uint8_t temprature_sens_read();
-#ifdef __cplusplus
-}
-#endif
+#define MAX_VOLTS           2365
+#define MIN_VOLTS           1853
+#define VOLT_RANGE          512
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
-uint8_t temprature_sens_read();
 
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
@@ -69,22 +59,20 @@ void loop() {
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
     // Analog value that relates to battery voltage
-    //String volts = String((float)(analogRead(ADC_PIN)) / 4095*2*3.3*1.1);
-    String volts = "  ";
-    volts.concat(String(analogRead(ADC_PIN)-MIN_VOLTS));
-    volts.concat("/800  ");
+    String batt = "  ";
+    batt.concat(String((analogRead(ADC_PIN)-MIN_VOLTS)));
+    batt.concat("/512  ");
     /*
     The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
     To convert the ADC integer value to a real voltage you’ll need to divide it by the maximum value of 4095,
     then double it (note above that Adafruit halves the voltage), then multiply that by the reference voltage of the ESP32 which 
     is 3.3V and then vinally, multiply that again by the ADC Reference Voltage of 1100mV.
     */
-    String temp = "  ";
-    //temp.concat(String((temprature_sens_read() - 32) / 1.8)));
-    temp.concat(String(temprature_sens_read()));
-    temp.concat(" F  ");
+    String volts = "  ";
+    volts.concat(String((float)(analogRead(ADC_PIN)) / 4095*2*3.3*1.1));
+    volts.concat(" V  ");
     tft.drawCentreString(volts,64,16,2);
-    tft.drawCentreString(temp,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
+    tft.drawCentreString(batt,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
   }
   // Run button_handler if pressed
   btnR.loop();
