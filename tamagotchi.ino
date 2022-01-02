@@ -5,7 +5,7 @@
 
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
-#define ADC_PIN             34
+#define VOLTAGE             34
 #define BUTTON_R            35
 #define BUTTON_L            0
 #define TFT_AMBER           0xfca0
@@ -58,20 +58,20 @@ void setup(void) {
   home_screen();
   button_init();
   
-  time_out = millis()+TIME_OUT; // Sleep after 10 seconds
+  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
 }
 
 void loop() {
   if (millis() > time_out)
     if (is_fishing)
       fishing_draw();
-    else
+    else if (analogRead(VOLTAGE) < MAX_VOLTS) // When connected to usb the pin reads a value greater than MAX_VOLTS
       deep_sleep();
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
     // Analog value that relates to battery voltage
     String batt = "  ";
-    batt.concat(String((analogRead(ADC_PIN)-MIN_VOLTS)));
+    batt.concat(String((analogRead(VOLTAGE)-MIN_VOLTS)));
     batt.concat("/512  ");
     /*
     The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
@@ -80,10 +80,12 @@ void loop() {
     is 3.3V and then vinally, multiply that again by the ADC Reference Voltage of 1100mV.
     */
     String volts = "  ";
-    volts.concat(String((float)(analogRead(ADC_PIN)) / 4095*2*3.3*1.1));
+    volts.concat(String((float)(analogRead(VOLTAGE)) / 4095*2*3.3*1.1));
     volts.concat(" V  ");
     tft.drawCentreString(volts,64,16,2);
     tft.drawCentreString(batt,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
+    tft.drawCentreString(String(time_out),64,48,2);
+    tft.drawCentreString(String(millis()),64,64,2);
   }
   // Run button_handler if pressed
   btnR.loop();
@@ -229,7 +231,7 @@ void button_init()
 
 void button_handler(Button2& btn)
 {
-  time_out = millis()+TIME_OUT; // Sleep after 10 seconds
+  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > LONG_PRESS) {
     if (btn == btnL)
