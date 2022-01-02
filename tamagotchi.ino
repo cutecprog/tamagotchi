@@ -8,13 +8,15 @@
 #define ADC_PIN             34
 #define BUTTON_R            35
 #define BUTTON_L            0
-#define LONG_PRESS          600
 #define TFT_AMBER           0xfca0
 
 #define HOME                128
 #define BRIGHTNESS          48
 #define TAMAGOTCHI          192
-#define TIME_OUT            20000  // Deep Sleep after 10 seconds
+
+#define TIME_OUT            20000   // Deep Sleep after 10 seconds
+#define LONG_PRESS          600
+#define MS_PER_FRAME        17      // About 58.82 fps
 
 #define CHARGING_VOLTS      2760
 #define MAX_VOLTS           2323
@@ -32,6 +34,7 @@ int counter;
 uint32_t time_out;
 
 // Fishing game globals
+bool is_fishing = false;
 bool fishing_paused = false;
 
 // All SRAM Globals
@@ -58,7 +61,10 @@ void setup(void) {
 
 void loop() {
   if (millis() > time_out)
-    deep_sleep();
+    if (is_fishing)
+      fishing_draw();
+    else
+      deep_sleep();
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
     // Analog value that relates to battery voltage
@@ -87,23 +93,32 @@ void fishing_init()
 {
   btnR.setReleasedHandler(fishing_click);
   btnL.setReleasedHandler(fishing_pause);
+  is_fishing = true;
+  time_out = millis() + 17;
 }
 
-void fishing_click(Button2& btn)
+void fishing_draw()
 {
-  tft.drawCentreString("    R    ",64,0,4);
+  time_out = millis() + 17;
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else
     tft.drawCentreString("    Not paused    ",64,130,4);
 }
 
+void fishing_click(Button2& btn)
+{
+  tft.drawCentreString("    R    ",64,0,4);
+}
+
 void fishing_pause(Button2& btn)
 {
   tft.drawCentreString("    L    ",64,0,4);
-  if (btn.wasPressedFor() > LONG_PRESS)
+  if (btn.wasPressedFor() > LONG_PRESS) {
+    is_fishing = false;
+    time_out = millis()+TIME_OUT;
     home_screen();
-  else
+  } else
     fishing_paused = !fishing_paused;
 }
 
