@@ -114,7 +114,7 @@ void fishing_init()
   fishing_square.createPalette(palette);
   fishing_square.fillSprite(9);
   meter.setColorDepth(4);
-  meter.createSprite(64, 64);
+  meter.createSprite(64, 2);
   meter.createPalette(palette);
   meter.fillSprite(12);
   posy = 0;
@@ -145,7 +145,7 @@ void fishing_draw()
     meter_value += meter_change;
     if (posy%176==0)
       spdy = -spdy;
-    if (meter_value%176==0)
+    if (meter_value%238==0)
       meter_change = -meter_change;
   }
 }
