@@ -149,9 +149,10 @@ void fishing_draw()
     //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += spdy;
     meter_value += meter_change;
-    if (posy >= 176)
-      spdy = 0;
-    else if (posy <= 0)
+    if (posy >= 176) {
+      spdy = -1;
+      //posy =
+    } else if (posy <= 0)
       spdy = 1;
     if ((abs(spdy) != 3) && (ticks%10 == 0))
       spdy++;
@@ -168,7 +169,6 @@ void fishing_draw()
 
 void fishing_click(Button2& btn)
 {
-  tft.drawCentreString(String(spdy),64,224,2);
   spdy -= 2;
 }
 
