@@ -42,6 +42,7 @@ uint8_t posy;
 int8_t spdy;
 uint8_t meter_value;
 int8_t meter_change;
+uint8_t ticks;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -121,21 +122,26 @@ void fishing_init()
   spdy = 1;
   meter_value = 170;
   meter_change = 1;
+  ticks = 0;
   time_out = millis() + 17;
 }
 
 void fishing_draw()
 {
+  ticks++;
   time_out = millis() + 17;
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    //tft.drawFastHLine(0, posy+spdy+64, 64, 0);
-    if (spdy < 0)
+    if (spdy < 0) {
       tft.drawFastHLine(0, posy-spdy+64, 64, 0);
-      //tft.fillScreen(TFT_BLACK);
-    else
+      tft.drawFastHLine(0, posy-spdy+1+64, 64, 0);
+      tft.drawFastHLine(0, posy-spdy+2+64, 64, 0);
+    } else {
       tft.drawFastHLine(0, posy-spdy, 64, 0);
+      tft.drawFastHLine(0, posy-spdy-1, 64, 0);
+      tft.drawFastHLine(0, posy-spdy-2, 64, 0);
+    }
     tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(0, posy);
@@ -143,16 +149,27 @@ void fishing_draw()
     //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += spdy;
     meter_value += meter_change;
-    if (posy%176==0)
-      spdy = -spdy;
+    if (posy >= 176)
+      spdy = 0;
+    else if (posy <= 0)
+      spdy = 1;
+    if ((abs(spdy) != 3) && (ticks%10 == 0))
+      spdy++;
+    else if (spdy > 3)
+      spdy = 3;
+    else if (spdy < -2)
+      spdy = -2;
     if (meter_value%238==0)
       meter_change = -meter_change;
+    tft.drawCentreString("  ",64,0,2);
+    tft.drawCentreString(String(spdy),64,0,2);
   }
 }
 
 void fishing_click(Button2& btn)
 {
-  tft.drawCentreString("    R    ",64,224,2);
+  tft.drawCentreString(String(spdy),64,224,2);
+  spdy -= 2;
 }
 
 void fishing_pause(Button2& btn)
