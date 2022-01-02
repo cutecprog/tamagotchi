@@ -18,7 +18,7 @@
 #define LONG_PRESS          600
 #define MS_PER_FRAME        17      // About 58.82 fps
 
-#define CHARGING_VOLTS      2760
+#define CHARGING_VOLTS      2511    // 700/512
 #define MAX_VOLTS           2323
 #define MIN_VOLTS           1811
 #define VOLT_RANGE          512
@@ -38,6 +38,7 @@ uint32_t time_out;
 bool is_fishing = false;
 bool fishing_paused = false;
 uint8_t posy;
+uint8_t spdy;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -67,6 +68,8 @@ void loop() {
       fishing_draw();
     else if (analogRead(VOLTAGE) < CHARGING_VOLTS) // When connected to usb the pin reads a value greater than MAX_VOLTS
       deep_sleep();
+  if ((analogRead(VOLTAGE) > CHARGING_VOLTS) && (millis()%1000 == 0) && !is_fishing)
+    time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
     // Analog value that relates to battery voltage
@@ -107,6 +110,7 @@ void fishing_init()
   fishing_square.createPalette(palette);
   fishing_square.fillSprite(9);
   posy = 0;
+  spdy = 1;
   time_out = millis() + 17;
 }
 
@@ -116,11 +120,11 @@ void fishing_draw()
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    tft.drawFastHLine(0, posy-1, 64, 0);
+    tft.drawFastHLine(0, posy-spdy, 64, 0);
     fishing_square.pushSprite(0, posy);
     //fishing_square.scroll(0, 1);
     //fishing_square.drawFastHLine(0, -1, 64, 0);
-    posy += 1;
+    posy += spdy;
   }
 }
 
