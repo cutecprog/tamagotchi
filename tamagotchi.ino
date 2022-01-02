@@ -65,7 +65,7 @@ void loop() {
   if (millis() > time_out)
     if (is_fishing)
       fishing_draw();
-    else if (analogRead(VOLTAGE) < MAX_VOLTS) // When connected to usb the pin reads a value greater than MAX_VOLTS
+    else if (analogRead(VOLTAGE) < CHARGING_VOLTS) // When connected to usb the pin reads a value greater than MAX_VOLTS
       deep_sleep();
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
