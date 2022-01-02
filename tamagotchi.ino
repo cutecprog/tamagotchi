@@ -96,23 +96,9 @@ void fishing_init()
   btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
   // Palette colour table
-  uint16_t palette[16];
-  palette[0]  = TFT_BLACK;
-  palette[1]  = TFT_ORANGE;
-  palette[2]  = TFT_DARKGREEN;
-  palette[3]  = TFT_DARKCYAN;
-  palette[4]  = TFT_MAROON;
-  palette[5]  = TFT_PURPLE;
-  palette[6]  = TFT_OLIVE;
-  palette[7]  = TFT_DARKGREY;
-  palette[8]  = TFT_ORANGE;
-  palette[9]  = TFT_BLUE;
-  palette[10] = TFT_GREEN;
-  palette[11] = TFT_CYAN;
-  palette[12] = TFT_RED;
-  palette[13] = TFT_NAVY;
-  palette[14] = TFT_YELLOW;
-  palette[15] = TFT_WHITE;
+  uint16_t palette[16] = 
+        { TFT_BLACK,  TFT_ORANGE, TFT_DARKGREEN,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
+          TFT_ORANGE, TFT_BLUE,   TFT_GREEN,      TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
   fishing_square.setColorDepth(4);
   fishing_square.createSprite(128, 61);
   fishing_square.createPalette(palette);
@@ -142,6 +128,8 @@ void fishing_pause(Button2& btn)
   if (btn.wasPressedFor() > LONG_PRESS) {
     is_fishing = false;
     time_out = millis()+TIME_OUT;
+    tft.fillScreen(TFT_BLACK);
+    button_init();
     home_screen();
   } else
     fishing_paused = !fishing_paused;
