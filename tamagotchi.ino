@@ -37,6 +37,7 @@ uint32_t time_out;
 // Fishing game globals
 bool is_fishing = false;
 bool fishing_paused = false;
+uint8_t posy;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -100,9 +101,10 @@ void fishing_init()
         { TFT_BLACK,  TFT_ORANGE, TFT_DARKGREEN,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
           TFT_ORANGE, TFT_BLUE,   TFT_GREEN,      TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
   fishing_square.setColorDepth(4);
-  fishing_square.createSprite(128, 61);
+  fishing_square.createSprite(64, 64);
   fishing_square.createPalette(palette);
   fishing_square.fillSprite(9);
+  posy = 0;
   time_out = millis() + 17;
 }
 
@@ -112,8 +114,11 @@ void fishing_draw()
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    tft.drawCentreString("                  ",64,130,4);
-    fishing_square.pushSprite(0, 0);
+    tft.fillScreen(TFT_BLACK);
+    fishing_square.pushSprite(0, posy);
+    //fishing_square.scroll(0, 1);
+    //fishing_square.drawFastHLine(0, posy, 32, 0);
+    posy += 1;
   }
 }
 
@@ -125,14 +130,15 @@ void fishing_click(Button2& btn)
 void fishing_pause(Button2& btn)
 {
   tft.drawCentreString("    L    ",64,224,2);
-  if (btn.wasPressedFor() > LONG_PRESS) {
+  if (btn.wasPressedFor() > LONG_PRESS) {  // Exit game to home screen
     is_fishing = false;
     time_out = millis()+TIME_OUT;
     tft.fillScreen(TFT_BLACK);
     button_init();
     home_screen();
   } else
-    fishing_paused = !fishing_paused;
+    fishing_paused = !fishing_paused;   // Toggle game pause
+    tft.drawCentreString("                  ",64,130,4); // Clear if case it's unpausing
 }
 
 // Clock code
