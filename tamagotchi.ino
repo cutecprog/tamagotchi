@@ -29,7 +29,7 @@ Button2 btnL(BUTTON_L);
 String menu = "";
 unsigned char menu_selection;
 int counter;
-uint32_t millis_until_sleep;
+uint32_t time_out;
 
 // Fishing game globals
 bool fishing_paused = false;
@@ -53,11 +53,11 @@ void setup(void) {
   home_screen();
 
   button_init();
-  millis_until_sleep = millis()+TIME_OUT; // Sleep after 10 seconds
+  time_out = millis()+TIME_OUT; // Sleep after 10 seconds
 }
 
 void loop() {
-  if (millis() > millis_until_sleep)
+  if (millis() > time_out)
     deep_sleep();
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
     clock_loop();
@@ -83,7 +83,7 @@ void loop() {
 }
 
 // Fishing game
-void fishing()
+void fishing_init()
 {
   btnR.setReleasedHandler(fishing_click);
   btnL.setReleasedHandler(fishing_pause);
@@ -156,7 +156,7 @@ void menu_init()
     case TAMAGOTCHI:
       // tft.drawCentreString("Tamagotchi",64,0,2);
       tama.i =0;
-      fishing();
+      fishing_init();
     break;
     default:
       tft.drawCentreString(menu,64,130,4);
@@ -176,7 +176,7 @@ void menu_loop(Button2& btn)
       tft.drawCentreString(String(brightness),64,32,4);
     break;
     case TAMAGOTCHI:
-      tft.drawCentreString("Tamagotchi",64,0,2);
+      tft.drawCentreString("Error: menu loop in Tamagotchi mode",64,0,2);
     break;
     default:
       // Select menu
@@ -195,7 +195,7 @@ void button_init()
 
 void button_handler(Button2& btn)
 {
-  millis_until_sleep = millis()+TIME_OUT; // Sleep after 10 seconds
+  time_out = millis()+TIME_OUT; // Sleep after 10 seconds
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > LONG_PRESS) {
     if (btn == btnL)
