@@ -111,7 +111,7 @@ void fishing_init()
         { TFT_BLACK,  TFT_ORANGE, TFT_DARKGREEN,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
           TFT_ORANGE, TFT_BLUE,   TFT_GREEN,      TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
   fishing_square.setColorDepth(4);
-  fishing_square.createSprite(64, 64);
+  fishing_square.createSprite(14, 55);
   fishing_square.createPalette(palette);
   fishing_square.fillSprite(9);
   meter.setColorDepth(4);
@@ -134,13 +134,13 @@ void fishing_draw()
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
     if (spdy < 0) {
-      tft.drawFastHLine(0, posy-spdy+64, 64, 0);
-      tft.drawFastHLine(0, posy-spdy+1+64, 64, 0);
-      tft.drawFastHLine(0, posy-spdy+2+64, 64, 0);
+      tft.drawFastHLine(0, posy-spdy+55, 14, 0);
+      tft.drawFastHLine(0, posy-spdy+1+55, 14, 0);
+      tft.drawFastHLine(0, posy-spdy+2+55, 14, 0);
     } else {
-      tft.drawFastHLine(0, posy-spdy, 64, 0);
-      tft.drawFastHLine(0, posy-spdy-1, 64, 0);
-      tft.drawFastHLine(0, posy-spdy-2, 64, 0);
+      tft.drawFastHLine(0, posy-spdy, 14, 0);
+      tft.drawFastHLine(0, posy-spdy-1, 14, 0);
+      tft.drawFastHLine(0, posy-spdy-2, 14, 0);
     }
     tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
@@ -149,10 +149,10 @@ void fishing_draw()
     //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += spdy;
     meter_value += meter_change;
-    if (posy >= 176) {
+    if ((posy >= 185) && (posy < 240)) {
       spdy = -1;
       //posy =
-    } else if (posy <= 0)
+    } else if ((posy == 0) || (posy >= 240))
       spdy = 1;
     if ((abs(spdy) != 3) && (ticks%10 == 0))
       spdy++;
