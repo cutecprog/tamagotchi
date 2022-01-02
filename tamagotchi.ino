@@ -25,6 +25,7 @@
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
+TFT_eSprite fishing_square = TFT_eSprite(&tft);
 
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
@@ -54,8 +55,8 @@ void setup(void) {
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   home_screen();
-
   button_init();
+  
   time_out = millis()+TIME_OUT; // Sleep after 10 seconds
 }
 
@@ -94,6 +95,28 @@ void fishing_init()
   btnR.setReleasedHandler(fishing_click);
   btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
+  // Palette colour table
+  uint16_t palette[16];
+  palette[0]  = TFT_BLACK;
+  palette[1]  = TFT_ORANGE;
+  palette[2]  = TFT_DARKGREEN;
+  palette[3]  = TFT_DARKCYAN;
+  palette[4]  = TFT_MAROON;
+  palette[5]  = TFT_PURPLE;
+  palette[6]  = TFT_OLIVE;
+  palette[7]  = TFT_DARKGREY;
+  palette[8]  = TFT_ORANGE;
+  palette[9]  = TFT_BLUE;
+  palette[10] = TFT_GREEN;
+  palette[11] = TFT_CYAN;
+  palette[12] = TFT_RED;
+  palette[13] = TFT_NAVY;
+  palette[14] = TFT_YELLOW;
+  palette[15] = TFT_WHITE;
+  fishing_square.setColorDepth(4);
+  fishing_square.createSprite(128, 61);
+  fishing_square.createPalette(palette);
+  fishing_square.fillSprite(9);
   time_out = millis() + 17;
 }
 
@@ -102,18 +125,20 @@ void fishing_draw()
   time_out = millis() + 17;
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
-  else
-    tft.drawCentreString("    Not paused    ",64,130,4);
+  else {
+    tft.drawCentreString("                  ",64,130,4);
+    fishing_square.pushSprite(0, 0);
+  }
 }
 
 void fishing_click(Button2& btn)
 {
-  tft.drawCentreString("    R    ",64,0,4);
+  tft.drawCentreString("    R    ",64,224,2);
 }
 
 void fishing_pause(Button2& btn)
 {
-  tft.drawCentreString("    L    ",64,0,4);
+  tft.drawCentreString("    L    ",64,224,2);
   if (btn.wasPressedFor() > LONG_PRESS) {
     is_fishing = false;
     time_out = millis()+TIME_OUT;
