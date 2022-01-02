@@ -38,7 +38,7 @@ uint32_t time_out;
 bool is_fishing = false;
 bool fishing_paused = false;
 uint8_t posy;
-uint8_t spdy;
+int8_t spdy;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -63,6 +63,7 @@ void setup(void) {
 }
 
 void loop() {
+  // This is a mess please make more readable
   if (millis() > time_out)
     if (is_fishing)
       fishing_draw();
@@ -120,11 +121,17 @@ void fishing_draw()
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    tft.drawFastHLine(0, posy-spdy, 64, 0);
+    //tft.drawFastHLine(0, posy+spdy+64, 64, 0);
+    if (spdy < 0)
+      tft.fillScreen(TFT_BLACK);
+    else
+      tft.drawFastHLine(0, posy-spdy, 64, 0);
     fishing_square.pushSprite(0, posy);
     //fishing_square.scroll(0, 1);
     //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += spdy;
+    if (posy%176==0)
+      spdy = -spdy;
   }
 }
 
