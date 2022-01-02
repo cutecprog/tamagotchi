@@ -114,10 +114,10 @@ void fishing_draw()
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    tft.fillScreen(TFT_BLACK);
+    tft.drawFastHLine(0, posy-1, 64, 0);
     fishing_square.pushSprite(0, posy);
     //fishing_square.scroll(0, 1);
-    //fishing_square.drawFastHLine(0, posy, 32, 0);
+    //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += 1;
   }
 }
