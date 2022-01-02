@@ -26,6 +26,7 @@
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 TFT_eSprite fishing_square = TFT_eSprite(&tft);
+TFT_eSprite meter = TFT_eSprite(&tft);
 
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
@@ -39,6 +40,8 @@ bool is_fishing = false;
 bool fishing_paused = false;
 uint8_t posy;
 int8_t spdy;
+uint8_t meter_value;
+int8_t meter_change;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -110,8 +113,14 @@ void fishing_init()
   fishing_square.createSprite(64, 64);
   fishing_square.createPalette(palette);
   fishing_square.fillSprite(9);
+  meter.setColorDepth(4);
+  meter.createSprite(64, 64);
+  meter.createPalette(palette);
+  meter.fillSprite(12);
   posy = 0;
   spdy = 1;
+  meter_value = 170;
+  meter_change = 1;
   time_out = millis() + 17;
 }
 
@@ -123,15 +132,21 @@ void fishing_draw()
   else {
     //tft.drawFastHLine(0, posy+spdy+64, 64, 0);
     if (spdy < 0)
-      tft.fillScreen(TFT_BLACK);
+      tft.drawFastHLine(0, posy-spdy+64, 64, 0);
+      //tft.fillScreen(TFT_BLACK);
     else
       tft.drawFastHLine(0, posy-spdy, 64, 0);
+    tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
+    meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(0, posy);
     //fishing_square.scroll(0, 1);
     //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += spdy;
+    meter_value += meter_change;
     if (posy%176==0)
       spdy = -spdy;
+    if (meter_value%176==0)
+      meter_change = -meter_change;
   }
 }
 
