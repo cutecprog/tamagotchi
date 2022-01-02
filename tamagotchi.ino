@@ -8,6 +8,7 @@
 #define ADC_PIN             34
 #define BUTTON_R            35
 #define BUTTON_L            0
+#define LONG_PRESS          600
 #define TFT_AMBER           0xfca0
 
 #define HOME                128
@@ -30,6 +31,9 @@ unsigned char menu_selection;
 int counter;
 uint32_t millis_until_sleep;
 
+// Fishing game globals
+bool fishing_paused = false;
+
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
 RTC_DATA_ATTR unsigned char brightness = 255;
@@ -48,8 +52,7 @@ void setup(void) {
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   home_screen();
 
-  btnR.setReleasedHandler(button_handler);
-  btnL.setReleasedHandler(button_handler);
+  button_init();
   millis_until_sleep = millis()+TIME_OUT; // Sleep after 10 seconds
 }
 
@@ -77,6 +80,31 @@ void loop() {
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
+}
+
+// Fishing game
+void fishing()
+{
+  btnR.setReleasedHandler(fishing_click);
+  btnL.setReleasedHandler(fishing_pause);
+}
+
+void fishing_click(Button2& btn)
+{
+  tft.drawCentreString("    R    ",64,0,4);
+  if (fishing_paused)
+    tft.drawCentreString("    Paused    ",64,130,4);
+  else
+    tft.drawCentreString("    Not paused    ",64,130,4);
+}
+
+void fishing_pause(Button2& btn)
+{
+  tft.drawCentreString("    L    ",64,0,4);
+  if (btn.wasPressedFor() > LONG_PRESS)
+    home_screen();
+  else
+    fishing_paused = !fishing_paused;
 }
 
 // Clock code
@@ -126,8 +154,9 @@ void menu_init()
       tft.drawCentreString(String(brightness),64,32,4);
     break;
     case TAMAGOTCHI:
-      tft.drawCentreString("Tamagotchi",64,0,2);
+      // tft.drawCentreString("Tamagotchi",64,0,2);
       tama.i =0;
+      fishing();
     break;
     default:
       tft.drawCentreString(menu,64,130,4);
@@ -158,11 +187,17 @@ void menu_loop(Button2& btn)
   }
 }
 
+void button_init()
+{
+  btnR.setReleasedHandler(button_handler);
+  btnL.setReleasedHandler(button_handler);
+}
+
 void button_handler(Button2& btn)
 {
   millis_until_sleep = millis()+TIME_OUT; // Sleep after 10 seconds
   tft.fillScreen(TFT_BLACK);
-  if (btn.wasPressedFor() > 600) {
+  if (btn.wasPressedFor() > LONG_PRESS) {
     if (btn == btnL)
       home_screen();
     else
@@ -174,7 +209,7 @@ void button_handler(Button2& btn)
 
 void home_screen()
 {
-  tft.drawCentreString("Home",64,130,4);
+  tft.drawCentreString("    Home    ",64,130,4);
   tft.drawCentreString(String(tama.i),64,180,4);
   clock_loop();
   menu = "";
