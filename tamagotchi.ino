@@ -23,6 +23,8 @@
 #define MIN_VOLTS           1811
 #define VOLT_RANGE          512
 
+#define FISHING_MAX_SPD     3
+
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 TFT_eSprite fishing_square = TFT_eSprite(&tft);
@@ -159,17 +161,19 @@ void fishing_draw()
     posy += spdy;
     if (btnR.isPressed())
       spdy -= 1;
-    if ((posy >= 169) && (posy < 224)) {
-      spdy = -1;
-      //posy =
-    } else if ((posy <= 11) || (posy >= 224))
-      spdy = 3;
-    if ((abs(spdy) != 3) && (ticks%10 == 0))
+    if ((posy >= 169) && (posy < 224)) {  // Hit bottom
+      spdy = -FISHING_MAX_SPD;
+      posy += -FISHING_MAX_SPD;
+    } else if ((posy <= 11) || (posy >= 224)) { // Hit top
+      spdy = FISHING_MAX_SPD;
+      posy += FISHING_MAX_SPD;
+    }
+    if ((spdy < FISHING_MAX_SPD) && (ticks%10 == 0))
       spdy++;
-    else if (spdy > 3)
-      spdy = 3;
-    else if (spdy < -2)
-      spdy = -2;
+    else if (spdy > FISHING_MAX_SPD)
+      spdy = FISHING_MAX_SPD;
+    else if (spdy < -FISHING_MAX_SPD)
+      spdy = -FISHING_MAX_SPD;
     meter_value += meter_change;
     if (meter_value%222==0)
       meter_change = -meter_change;
