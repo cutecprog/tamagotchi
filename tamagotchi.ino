@@ -155,11 +155,13 @@ void fishing_draw()
     //tft.fillRect(20,clear_pos,14, 6, TFT_ORANGE);
     //tft.fillRect(20,0,14, 11, TFT_BLACK);
     //tft.fillRect(20,224,14, 16, TFT_BLACK);
-    //tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
+    tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(20, posy);
-    tft.fillRect(20,11,14,posy-11, TFT_ORANGE);
-    tft.fillRect(20,posy+55,14, 213-posy-55+11, TFT_ORANGE);
+    tft.drawRect(20,11,14,posy-11, TFT_ORANGE);
+    tft.drawRect(20,posy+55,14, 213-posy-55+11, TFT_ORANGE);
+    tft.fillRect(21,12,12,posy-11-2, TFT_BLACK);              // Clear top
+    tft.fillRect(21,posy+55+1,12, 213-posy-55+11-2, TFT_BLACK); // Clear bottom
     
     posy += spdy;
     if ((btnR.isPressed()) && (ticks%4 == 0))
