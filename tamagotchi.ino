@@ -115,11 +115,11 @@ void fishing_init()
   // Palette colour table
   uint16_t palette[16] = 
         { TFT_BLACK,  TFT_ORANGE, TFT_DARKGREEN,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
-          TFT_ORANGE, TFT_BLUE,   TFT_GREEN,      TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
+          TFT_ORANGE, TFT_BLUE,   0x2300,         TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
   fishing_square.setColorDepth(4);
   fishing_square.createSprite(14, 55);
   fishing_square.createPalette(palette);
-  fishing_square.fillSprite(9);
+  fishing_square.fillSprite(10);
   meter.setColorDepth(4);
   meter.createSprite(64, 2);
   meter.createPalette(palette);
@@ -129,7 +129,7 @@ void fishing_init()
   //background.createPalette(palette);
   //background.fillSprite(1);
   //background.pushSprite(20, 11);
-  //tft.fillRect(20,11,14,213, TFT_ORANGE);
+  tft.fillRect(17,8,20,219, 0xFDAA);
   
   posy = 64;
   spdy = 1;
@@ -159,21 +159,21 @@ void fishing_draw()
     tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(20, posy);
-    tft.drawRect(20,11,14,posy-11, TFT_ORANGE);
-    tft.drawRect(20,posy+55,14, 213-posy-55+11, TFT_ORANGE);
-    tft.fillRect(21,12,12,posy-11-2, TFT_BLACK);              // Clear top
-    tft.fillRect(21,posy+55+1,12, 213-posy-55+11-2, TFT_BLACK); // Clear bottom
+    tft.drawRect(20,11,14,posy-11, 0x6C39);
+    tft.drawRect(20,posy+55,14, 213-posy-55+11, 0x6C39);
+    tft.fillRect(21,12,12,posy-11-2, 0x95BC);                // Clear top
+    tft.fillRect(21,posy+55+1,12, 213-posy-55+11-2, 0x95BC); // Clear bottom
     
     posy += spdy;
     if ((btnR.isPressed()) && (ticks%4 == 0))
       spdy -= 1;
     // End bouncing
     if ((posy >= 169) && (posy < 224)) {  // Hit bottom
-      spdy = -FISHING_BOUNCE_SPD;
-      posy += -FISHING_BOUNCE_SPD;
+      spdy = -spdy;
+      posy += (spdy>>1);
     } else if ((posy <= 11) || (posy >= 224)) { // Hit top
-      spdy = FISHING_BOUNCE_SPD;
-      posy += FISHING_BOUNCE_SPD;
+      spdy = -spdy;
+      posy += (spdy>>1);
     }
     if ((spdy < FISHING_MAX_SPD) && (ticks%10 == 0))
       spdy++;
@@ -207,6 +207,7 @@ void fishing_pause(Button2& btn)
   } else
     fishing_paused = !fishing_paused;   // Toggle game pause
     tft.drawCentreString("                  ",64,130,4); // Clear if case it's unpausing
+    tft.fillRect(17,8,20,219, 0xFDAA);  // Redraw borders 
 }
 
 // Clock code
