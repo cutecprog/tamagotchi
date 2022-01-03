@@ -23,7 +23,8 @@
 #define MIN_VOLTS           1811
 #define VOLT_RANGE          512
 
-#define FISHING_MAX_SPD     3
+#define FISHING_MAX_SPD     5
+#define FISHING_BOUNCE_SPD  3
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
@@ -127,7 +128,7 @@ void fishing_init()
   //background.createPalette(palette);
   //background.fillSprite(1);
   //background.pushSprite(20, 11);
-  tft.fillRect(20,11,14,213, TFT_ORANGE);
+  //tft.fillRect(20,11,14,213, TFT_ORANGE);
   
   posy = 64;
   spdy = 1;
@@ -144,29 +145,32 @@ void fishing_draw()
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    uint8_t clear_pos = posy-spdy;
+    /*uint8_t clear_pos = posy-spdy;
     if (spdy < 0)
-      clear_pos += 55;
-    if (clear_pos < 11)
+      clear_pos += 55;*/
+    /*if (clear_pos < 11)
         clear_pos = 11;
     else if (clear_pos > 218)
-      clear_pos = 218;
-    tft.fillRect(20,clear_pos,14, 6, TFT_ORANGE);
-    tft.fillRect(20,0,14, 11, TFT_BLACK);
-    tft.fillRect(20,224,14, 16, TFT_BLACK);
-    tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
+      clear_pos = 218;*/
+    //tft.fillRect(20,clear_pos,14, 6, TFT_ORANGE);
+    //tft.fillRect(20,0,14, 11, TFT_BLACK);
+    //tft.fillRect(20,224,14, 16, TFT_BLACK);
+    //tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(20, posy);
+    tft.fillRect(20,11,14,posy-11, TFT_ORANGE);
+    tft.fillRect(20,posy+55,14, 213-posy-55+11, TFT_ORANGE);
     
     posy += spdy;
     if ((btnR.isPressed()) && (ticks%4 == 0))
       spdy -= 1;
+    // End bouncing
     if ((posy >= 169) && (posy < 224)) {  // Hit bottom
-      spdy = -FISHING_MAX_SPD;
-      posy += -FISHING_MAX_SPD;
+      spdy = -FISHING_BOUNCE_SPD;
+      posy += -FISHING_BOUNCE_SPD;
     } else if ((posy <= 11) || (posy >= 224)) { // Hit top
-      spdy = FISHING_MAX_SPD;
-      posy += FISHING_MAX_SPD;
+      spdy = FISHING_BOUNCE_SPD;
+      posy += FISHING_BOUNCE_SPD;
     }
     if ((spdy < FISHING_MAX_SPD) && (ticks%10 == 0))
       spdy++;
