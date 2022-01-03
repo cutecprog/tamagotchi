@@ -142,29 +142,35 @@ void fishing_draw()
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
+    uint8_t clear_pos = posy-spdy;
     if (spdy < 0)
-      tft.fillRect(20,posy-spdy+55,14, 6, TFT_ORANGE);
-    else
-      tft.fillRect(20,posy-spdy,14, 6, TFT_ORANGE);
+      clear_pos += 55;
+    if (clear_pos < 11)
+        clear_pos = 11;
+    else if (clear_pos > 218)
+      clear_pos = 218;
+    tft.fillRect(20,clear_pos,14, 6, TFT_ORANGE);
+    tft.fillRect(20,0,14, 11, TFT_BLACK);
+    tft.fillRect(20,224,14, 16, TFT_BLACK);
     tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(20, posy);
     
     posy += spdy;
-    meter_value += meter_change;
     if (btnR.isPressed())
       spdy -= 1;
     if ((posy >= 169) && (posy < 224)) {
       spdy = -1;
       //posy =
-    } else if ((posy == 11) || (posy >= 224))
-      spdy = 1;
+    } else if ((posy <= 11) || (posy >= 224))
+      spdy = 3;
     if ((abs(spdy) != 3) && (ticks%10 == 0))
       spdy++;
     else if (spdy > 3)
       spdy = 3;
     else if (spdy < -2)
       spdy = -2;
+    meter_value += meter_change;
     if (meter_value%222==0)
       meter_change = -meter_change;
     tft.drawCentreString("  ",64,0,2);
