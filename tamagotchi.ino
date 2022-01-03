@@ -124,6 +124,7 @@ void fishing_init()
   background.createSprite(14, 213);
   background.createPalette(palette);
   background.fillSprite(1);
+  background.pushSprite(0, 11);
   
   posy = 0;
   spdy = 1;
@@ -137,24 +138,30 @@ void fishing_draw()
 {
   ticks++;
   time_out = millis() + 17;
-  background.pushSprite(0, 11);
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
     if (spdy < 0) {
-      tft.drawFastHLine(0, posy-spdy+55, 14, 0);
-      tft.drawFastHLine(0, posy-spdy+1+55, 14, 0);
-      tft.drawFastHLine(0, posy-spdy+2+55, 14, 0);
+      for(int i=0; i<5; i++) {
+      tft.drawFastHLine(0, posy-spdy+55, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy+1+55, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy+2+55, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy+3+55, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy+4+55, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy+5+55, 14, TFT_ORANGE);
+      }
     } else {
-      tft.drawFastHLine(0, posy-spdy, 14, 0);
-      tft.drawFastHLine(0, posy-spdy-1, 14, 0);
-      tft.drawFastHLine(0, posy-spdy-2, 14, 0);
+      tft.drawFastHLine(0, posy-spdy, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy-1, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy-2, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy-3, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy-4, 14, TFT_ORANGE);
+      tft.drawFastHLine(0, posy-spdy-5, 14, TFT_ORANGE);
     }
     tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
     meter.pushSprite(64, meter_value);
     fishing_square.pushSprite(0, posy);
-    //fishing_square.scroll(0, 1);
-    //fishing_square.drawFastHLine(0, -1, 64, 0);
+    
     posy += spdy;
     meter_value += meter_change;
     if (btnR.isPressed())
