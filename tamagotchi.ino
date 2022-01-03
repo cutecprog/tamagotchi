@@ -103,6 +103,7 @@ void loop() {
 // Fishing game
 void fishing_init()
 {
+  //btnR.setReleasedHandler(NULL);
   btnR.setReleasedHandler(fishing_click);
   btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
@@ -149,6 +150,8 @@ void fishing_draw()
     //fishing_square.drawFastHLine(0, -1, 64, 0);
     posy += spdy;
     meter_value += meter_change;
+    if (btnR.isPressed())
+      spdy -= 1;
     if ((posy >= 185) && (posy < 240)) {
       spdy = -1;
       //posy =
@@ -179,6 +182,7 @@ void fishing_pause(Button2& btn)
     is_fishing = false;
     time_out = millis()+TIME_OUT;
     tft.fillScreen(TFT_BLACK);
+    //btnR.setPressedHandler(NULL);
     button_init();
     home_screen();
   } else
