@@ -28,6 +28,7 @@
 
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
+
 TFT_eSprite fishing_square = TFT_eSprite(&tft);
 TFT_eSprite meter = TFT_eSprite(&tft);
 TFT_eSprite background = TFT_eSprite(&tft);
