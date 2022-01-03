@@ -159,7 +159,7 @@ void fishing_draw()
     fishing_square.pushSprite(20, posy);
     
     posy += spdy;
-    if (btnR.isPressed())
+    if ((btnR.isPressed()) && (ticks%4 == 0))
       spdy -= 1;
     if ((posy >= 169) && (posy < 224)) {  // Hit bottom
       spdy = -FISHING_MAX_SPD;
