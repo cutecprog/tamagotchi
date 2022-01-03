@@ -27,6 +27,7 @@
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 TFT_eSprite fishing_square = TFT_eSprite(&tft);
 TFT_eSprite meter = TFT_eSprite(&tft);
+TFT_eSprite background = TFT_eSprite(&tft);
 
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
@@ -119,6 +120,11 @@ void fishing_init()
   meter.createSprite(64, 2);
   meter.createPalette(palette);
   meter.fillSprite(12);
+  background.setColorDepth(4);
+  background.createSprite(14, 213);
+  background.createPalette(palette);
+  background.fillSprite(1);
+  
   posy = 0;
   spdy = 1;
   meter_value = 170;
@@ -131,6 +137,7 @@ void fishing_draw()
 {
   ticks++;
   time_out = millis() + 17;
+  background.pushSprite(0, 11);
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
