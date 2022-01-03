@@ -184,7 +184,7 @@ void fishing_draw()
 
 void fishing_click(Button2& btn)
 {
-  spdy -= 2;
+  spdy -= 1;
 }
 
 void fishing_pause(Button2& btn)
