@@ -100,10 +100,14 @@ void button_handler(Button2& btn)
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > LONG_PRESS) {
     if (btn == btnL)
-      home_screen();
-    else
-      deep_sleep();
-    return;
+      if (menu_selection == HOME)
+        deep_sleep();
+      else {
+        home_screen();
+        return;
+      }
+  //else
+  //  btnR action
   }
   menu_loop(btn);
 }
