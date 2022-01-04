@@ -72,20 +72,23 @@ void setup(void) {
 }
 
 void loop() {
-  // This is a mess please make more readable
-  if (millis() > time_out)
-    if (is_fishing)
-      fishing_loop();
-    else if (analogRead(VOLTAGE) < CHARGING_VOLTS) // When connected to usb the pin reads a value greater than MAX_VOLTS
-      deep_sleep();
-  if ((analogRead(VOLTAGE) > CHARGING_VOLTS) && (millis()%1000 == 0) && !is_fishing)
-    time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
-  if ((menu_selection == HOME) && (millis()%1000 == 0)) {
-    home_loop(); // update home screen stats (eg clock, battery, etc)
-  }
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
+  // This is a mess please make more readable
+  if (millis() > time_out) { // custom fps based on 1000/time_out
+    if (is_fishing) {
+      fishing_loop();
+    } else if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
+      deep_sleep();
+    }
+  }
+  if ((millis()%1000 == 0) && !is_fishing) { // 1 fps
+    if (analogRead(VOLTAGE) > CHARGING_VOLTS)
+      time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
+    if (menu_selection == HOME)
+      home_loop(); // update home screen stats (eg clock, battery, etc)
+  }
 }
 
 void button_handler(Button2& btn)
@@ -180,14 +183,14 @@ void fishing_init()
 
 void fishing_loop()
 {
-  ticks++;
-  time_out = millis() + 17;
+  time_out = millis() + 17;   // 58.82 fps
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
     fishing_draw();
     fishing_update();
   }
+  ticks++;
 }
 
 void fishing_update()
