@@ -75,7 +75,7 @@ void loop() {
   // This is a mess please make more readable
   if (millis() > time_out)
     if (is_fishing)
-      fishing_draw();
+      fishing_loop();
     else if (analogRead(VOLTAGE) < CHARGING_VOLTS) // When connected to usb the pin reads a value greater than MAX_VOLTS
       deep_sleep();
   if ((analogRead(VOLTAGE) > CHARGING_VOLTS) && (millis()%1000 == 0) && !is_fishing)
@@ -142,61 +142,73 @@ void fishing_init()
   time_out = millis() + 17;
 }
 
-void fishing_draw()
+void fishing_loop()
 {
   ticks++;
   time_out = millis() + 17;
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
-    /*uint8_t clear_pos = posy-spdy;
-    if (spdy < 0)
-      clear_pos += 55;*/
-    /*if (clear_pos < 11)
-        clear_pos = 11;
-    else if (clear_pos > 218)
-      clear_pos = 218;*/
-    //tft.fillRect(20,clear_pos,14, 6, TFT_ORANGE);
-    //tft.fillRect(20,0,14, 11, TFT_BLACK);
-    //tft.fillRect(20,224,14, 16, TFT_BLACK);
-    tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
-    meter.pushSprite(64, meter_value);
-    fishing_square.pushSprite(20, posy);
-    tft.drawRect(20,11,14,posy-11, 0x6C39);
-    tft.drawRect(21,12,12,posy-11-2, 0x6C39);
-    
-    tft.drawRect(20, posy+55,   14, 213-posy-55+11, 0x6C39);
-    tft.drawRect(21, posy+56,   12, 213-posy-55+11-2, 0x6C39);
-    tft.fillRect(22, 13,        10, posy-11-2, 0x95BC);                // Clear top
-    tft.fillRect(22, posy+55+1, 10, 213-posy-55+11-2, 0x95BC); // Clear bottom
-
-    tft.drawRect(17, 8,20,219, 0xFDAA);
-    tft.drawRect(18, 9,18,217, 0xFDAA);
-    tft.drawRect(19,10,16,215, 0xFDAA);
-    
-    posy += spdy;
-    if ((btnR.isPressed()) && (ticks%4 == 0))
-      spdy -= 1;
-    // End bouncing
-    if ((posy >= 169) && (posy < 224)) {  // Hit bottom
-      spdy = -spdy;
-      posy += (spdy>>1);
-    } else if ((posy <= 11) || (posy >= 224)) { // Hit top
-      spdy = -spdy;
-      posy += (spdy>>1);
-    }
-    if ((spdy < FISHING_MAX_SPD) && (ticks%10 == 0))
-      spdy++;
-    else if (spdy > FISHING_MAX_SPD)
-      spdy = FISHING_MAX_SPD;
-    else if (spdy < -FISHING_MAX_SPD)
-      spdy = -FISHING_MAX_SPD;
-    meter_value += meter_change;
-    if (meter_value%222==0)
-      meter_change = -meter_change;
-    tft.drawCentreString("  ",64,0,2);
-    tft.drawCentreString(String(spdy),64,0,2);
+    fishing_draw();
+    fishing_update();
   }
+}
+
+void fishing_update()
+{
+  meter_value += meter_change;
+  if (meter_value%222==0)
+  meter_change = -meter_change;
+
+  // Move by speed
+  posy += spdy;
+  // Accerate up 1 px / 4 frames (14.7 px/s^2)
+  if ((btnR.isPressed()) && (ticks%4 == 0))
+    spdy -= 1;
+  // Bounce on ends
+  if ((posy >= 169) && (posy < 224)) {
+    // Hit top bounce down
+    spdy = -spdy;
+    posy += (spdy>>1);
+  } else if ((posy <= 11) || (posy >= 224)) {
+    // Hit bottom bounce up
+    spdy = -spdy;
+    posy += (spdy>>1);
+  }
+  // Accerate down 1px / 10 frames (5.88 px/s^2)
+  // Terminal velocity is FISHING_MAX_SPD (eg 29.4 px/s^2)
+  if ((spdy < FISHING_MAX_SPD) && (ticks%10 == 0))
+    spdy++;
+  // (optional) Limit upward speed to FISHING_MAX_SPD
+  else if (spdy > FISHING_MAX_SPD)
+    spdy = FISHING_MAX_SPD;
+  // Limit downward speed to FISHING_MAX_SPD
+  else if (spdy < -FISHING_MAX_SPD)
+    spdy = -FISHING_MAX_SPD;
+}
+
+void fishing_draw()
+{
+  tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
+  meter.pushSprite(64, meter_value);
+
+  fishing_square.pushSprite(20, posy);
+  // Top 2px dark blue outline
+  tft.drawRect(20,11,14,posy-11, 0x6C39);
+  tft.drawRect(21,12,12,posy-11-2, 0x6C39);
+  // Bottom 2px dark blue outline
+  tft.drawRect(20, posy+55,   14, 213-posy-55+11, 0x6C39);
+  tft.drawRect(21, posy+56,   12, 213-posy-55+11-2, 0x6C39);
+  // Top and bottom light blue fill rects
+  tft.fillRect(22, 13,        10, posy-11-2, 0x95BC);
+  tft.fillRect(22, posy+55+1, 10, 213-posy-55+11-2, 0x95BC);
+  // Outer 3px peach outline
+  tft.drawRect(17, 8,20,219, 0xFDAA);
+  tft.drawRect(18, 9,18,217, 0xFDAA);
+  tft.drawRect(19,10,16,215, 0xFDAA);
+  // Debug output
+  tft.drawCentreString("   ",64,0,2); // Moved over to clear the minus
+  tft.drawCentreString(String(spdy),64,0,2);
 }
 
 void fishing_click(Button2& btn)
