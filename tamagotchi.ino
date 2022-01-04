@@ -81,24 +81,7 @@ void loop() {
   if ((analogRead(VOLTAGE) > CHARGING_VOLTS) && (millis()%1000 == 0) && !is_fishing)
     time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
   if ((menu_selection == HOME) && (millis()%1000 == 0)) {
-    clock_loop();
-    // Analog value that relates to battery voltage
-    String batt = "  ";
-    batt.concat(String((analogRead(VOLTAGE)-MIN_VOLTS)));
-    batt.concat("/512  ");
-    /*
-    The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
-    To convert the ADC integer value to a real voltage you’ll need to divide it by the maximum value of 4095,
-    then double it (note above that Adafruit halves the voltage), then multiply that by the reference voltage of the ESP32 which 
-    is 3.3V and then vinally, multiply that again by the ADC Reference Voltage of 1100mV.
-    */
-    String volts = "  ";
-    volts.concat(String((float)(analogRead(VOLTAGE)) / 4095*2*3.3*1.1));
-    volts.concat(" V  ");
-    tft.drawCentreString(volts,64,16,2);
-    tft.drawCentreString(batt,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
-    tft.drawCentreString(String(time_out),64,48,2);
-    tft.drawCentreString(String(millis()),64,64,2);
+    home_loop(); // update home screen stats (eg clock, battery, etc)
   }
   // Run button_handler if pressed
   btnR.loop();
@@ -226,12 +209,6 @@ void fishing_pause(Button2& btn)
 }
 
 // Clock code
-void clock_loop()
-{
-  gettimeofday(&age, NULL);
-  printHMS(age.tv_sec, 0); 
-}
-
 void printHMS(uint32_t t, uint32_t y)
 {
   uint32_t s, m, h;
@@ -329,10 +306,36 @@ void home_screen()
 {
   tft.drawCentreString("    Home    ",64,130,4);
   tft.drawCentreString(String(tama.i),64,180,4);
-  clock_loop();
+  home_loop();
   menu = "";
   menu_selection = HOME;
   counter = 64;
+}
+
+// Called every second in loop()
+void home_loop()
+{
+  // Print time since hatched
+  gettimeofday(&age, NULL);
+  printHMS(age.tv_sec, 0);
+
+  // Analog value that relates to battery voltage
+  String batt = "  ";
+  batt.concat(String((analogRead(VOLTAGE)-MIN_VOLTS)));
+  batt.concat("/512  ");
+  /*
+    The ADC value is a 12-bit number, so the maximum value is 4095 (counting from 0).
+    To convert the ADC integer value to a real voltage you’ll need to divide it by the maximum value of 4095,
+    then double it (note above that Adafruit halves the voltage), then multiply that by the reference voltage of the ESP32 which 
+    is 3.3V and then vinally, multiply that again by the ADC Reference Voltage of 1100mV.
+  */
+  String volts = "  ";
+  volts.concat(String((float)(analogRead(VOLTAGE)) / 4095*2*3.3*1.1));
+  volts.concat(" V  ");
+  tft.drawCentreString(volts,64,16,2);
+  tft.drawCentreString(batt,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
+  tft.drawCentreString(String(time_out),64,48,2);
+  tft.drawCentreString(String(millis()),64,64,2);
 }
 
 // Screen Brightness code
