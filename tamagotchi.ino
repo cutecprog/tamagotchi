@@ -88,6 +88,66 @@ void loop() {
   btnL.loop();
 }
 
+void button_handler(Button2& btn)
+{
+  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
+  tft.fillScreen(TFT_BLACK);
+  if (btn.wasPressedFor() > LONG_PRESS) {
+    if (btn == btnL)
+      home_screen();
+    else
+      deep_sleep();
+    return;
+  }
+  menu_loop(btn);
+}
+
+void menu_loop(Button2& btn)
+{
+  // main switch-case
+  switch(menu_selection) {
+    case BRIGHTNESS:
+      tft.drawCentreString("Brightness",64,130,4);
+      brightness += (btn==btnL) ? -counter : counter;
+      counter>>=1;
+      set_brightness(brightness);
+      tft.drawCentreString(String(brightness),64,32,4);
+    break;
+    case TAMAGOTCHI:
+      tft.drawCentreString("Error: menu loop in Tamagotchi mode",64,0,2);
+    break;
+    default:
+      // Select menu
+      menu.concat((btn==btnL) ? "L" : "R");
+      menu_selection += (btn==btnL) ? -counter : counter;
+      counter>>=1;
+      menu_init(); 
+  }
+}
+
+// This needs a different name
+void menu_init()
+{
+  // init and display switch-case
+  switch(menu_selection) {
+    case BRIGHTNESS:
+      counter = 64;
+      brightness = 128;
+      set_brightness(brightness);
+      tft.drawCentreString("Brightness",64,130,4);
+      tft.drawCentreString(String(brightness),64,32,4);
+    break;
+    case TAMAGOTCHI:
+      // tft.drawCentreString("Tamagotchi",64,0,2);
+      tama.i =0;
+      fishing_init();
+    break;
+    default:
+      tft.drawCentreString(menu,64,130,4);
+      tft.drawCentreString(String(menu_selection),64,180,4);
+  }
+}
+
 // Fishing game
 void fishing_init()
 {
@@ -208,98 +268,10 @@ void fishing_pause(Button2& btn)
     //tft.fillRect(17,8,20,219, 0xFDAA);  // Redraw borders 
 }
 
-// Clock code
-void printHMS(uint32_t t, uint32_t y)
-{
-  uint32_t s, m, h;
-  String hms;
-  s = t % 60;
-  t = (t - s)/60;
-  m = t % 60;
-  t = (t - m)/60;
-  h = t % 24;
-  t = (t - h)/24;  // t holds the number of days
-
-  hms = "   ";
-  if (t > 0) {
-    hms.concat("Day ");
-    hms.concat(String(t));
-    hms.concat(String(" "));
-  }
-  hms.concat((h <=9) ? "0" : "");
-  hms.concat(String(h));
-  hms.concat((m <=9) ?":0" : ":");
-  hms.concat(String(m));
-  hms.concat((s <=9) ?":0" : ":");
-  hms.concat(String(s));
-  hms.concat("   ");
-  tft.drawCentreString(hms,64,y,2);
-}
-
-// Menu code
-void menu_init()
-{
-  // init and display switch-case
-  switch(menu_selection) {
-    case BRIGHTNESS:
-      counter = 64;
-      brightness = 128;
-      set_brightness(brightness);
-      tft.drawCentreString("Brightness",64,130,4);
-      tft.drawCentreString(String(brightness),64,32,4);
-    break;
-    case TAMAGOTCHI:
-      // tft.drawCentreString("Tamagotchi",64,0,2);
-      tama.i =0;
-      fishing_init();
-    break;
-    default:
-      tft.drawCentreString(menu,64,130,4);
-      tft.drawCentreString(String(menu_selection),64,180,4);
-  }
-}
-
-void menu_loop(Button2& btn)
-{
-  // main switch-case
-  switch(menu_selection) {
-    case BRIGHTNESS:
-      tft.drawCentreString("Brightness",64,130,4);
-      brightness += (btn==btnL) ? -counter : counter;
-      counter>>=1;
-      set_brightness(brightness);
-      tft.drawCentreString(String(brightness),64,32,4);
-    break;
-    case TAMAGOTCHI:
-      tft.drawCentreString("Error: menu loop in Tamagotchi mode",64,0,2);
-    break;
-    default:
-      // Select menu
-      menu.concat((btn==btnL) ? "L" : "R");
-      menu_selection += (btn==btnL) ? -counter : counter;
-      counter>>=1;
-      menu_init(); 
-  }
-}
-
 void button_init()
 {
   btnR.setReleasedHandler(button_handler);
   btnL.setReleasedHandler(button_handler);
-}
-
-void button_handler(Button2& btn)
-{
-  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
-  tft.fillScreen(TFT_BLACK);
-  if (btn.wasPressedFor() > LONG_PRESS) {
-    if (btn == btnL)
-      home_screen();
-    else
-      deep_sleep();
-    return;
-  }
-  menu_loop(btn);
 }
 
 void home_screen()
@@ -336,6 +308,33 @@ void home_loop()
   tft.drawCentreString(batt,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
   tft.drawCentreString(String(time_out),64,48,2);
   tft.drawCentreString(String(millis()),64,64,2);
+}
+
+void printHMS(uint32_t t, uint32_t y)
+{
+  uint32_t s, m, h;
+  String hms;
+  s = t % 60;
+  t = (t - s)/60;
+  m = t % 60;
+  t = (t - m)/60;
+  h = t % 24;
+  t = (t - h)/24;  // t holds the number of days
+
+  hms = "   ";
+  if (t > 0) {
+    hms.concat("Day ");
+    hms.concat(String(t));
+    hms.concat(String(" "));
+  }
+  hms.concat((h <=9) ? "0" : "");
+  hms.concat(String(h));
+  hms.concat((m <=9) ?":0" : ":");
+  hms.concat(String(m));
+  hms.concat((s <=9) ?":0" : ":");
+  hms.concat(String(s));
+  hms.concat("   ");
+  tft.drawCentreString(hms,64,y,2);
 }
 
 // Screen Brightness code
