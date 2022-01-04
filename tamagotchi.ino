@@ -164,6 +164,7 @@ void fishing_init()
   btnR.setReleasedHandler(fishing_click);
   btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
+  fishing_paused = false;
   // Palette colour table
   uint16_t palette[16] = 
         { TFT_BLACK,  TFT_ORANGE, 0x7F00,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
@@ -191,9 +192,7 @@ void fishing_init()
 void fishing_loop()
 {
   next_frame_time = micros() + 16666;   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
-  if (fishing_paused)
-    tft.drawCentreString("    Paused    ",64,130,4);
-  else {
+  if (!fishing_paused) {
     fishing_draw();
     fishing_update();
   }
@@ -259,22 +258,25 @@ void fishing_draw()
 
 void fishing_click(Button2& btn)
 {
-  spdy -= 1;
+  if (fishing_paused) {
+    fishing_paused = false;
+    tft.drawCentreString("                  ",64,130,4);
+  } else
+    spdy -= 1;
 }
 
 void fishing_pause(Button2& btn)
 {
   tft.drawCentreString("    L    ",64,224,2);
-  if (btn.wasPressedFor() > LONG_PRESS) {  // Exit game to home screen
+  if (fishing_paused) {  // Exit game to home screen
     is_fishing = false;
     time_out = millis()+TIME_OUT;
     tft.fillScreen(TFT_BLACK);
-    //btnR.setPressedHandler(NULL);
     button_init();
     home_screen();
   } else
-    fishing_paused = !fishing_paused;   // Toggle game pause
-    tft.drawCentreString("                  ",64,130,4); // Clear if case it's unpausing
+    fishing_paused = true;   // Toggle game pause
+    tft.drawCentreString("    Paused    ",64,130,4);
     //tft.fillRect(17,8,20,219, 0xFDAA);  // Redraw borders 
 }
 
