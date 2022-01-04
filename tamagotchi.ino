@@ -48,6 +48,7 @@ int8_t spdy;
 uint8_t meter_value;
 int8_t meter_change;
 uint8_t ticks;
+unsigned long next_frame_time;
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -75,15 +76,17 @@ void loop() {
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
-  // This is a mess please make more readable
-  if (millis() > time_out) { // custom fps based on 1000/time_out
-    if (is_fishing) {
+  if (is_fishing) {
+    if (micros() > next_frame_time)  // custom fps 
       fishing_loop();
-    } else if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
+    return;
+  }
+  if (millis() > time_out) { 
+    if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
       deep_sleep();
     }
   }
-  if ((millis()%1000 == 0) && !is_fishing) { // 1 fps
+  if (millis()%1000 == 0) { // 1 fps
     if (analogRead(VOLTAGE) > CHARGING_VOLTS)
       time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
     if (menu_selection == HOME)
@@ -183,7 +186,7 @@ void fishing_init()
 
 void fishing_loop()
 {
-  time_out = millis() + 17;   // 58.82 fps
+  next_frame_time = micros() + 16666;   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
   if (fishing_paused)
     tft.drawCentreString("    Paused    ",64,130,4);
   else {
