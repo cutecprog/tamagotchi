@@ -274,9 +274,10 @@ void fishing_pause(Button2& btn)
     tft.fillScreen(TFT_BLACK);
     button_init();
     home_screen();
-  } else
+  } else {
     fishing_paused = true;   // Toggle game pause
     tft.drawCentreString("    Paused    ",64,130,4);
+  }
     //tft.fillRect(17,8,20,219, 0xFDAA);  // Redraw borders 
 }
 
