@@ -108,7 +108,6 @@ void loop() {
 // Fishing game
 void fishing_init()
 {
-  //btnR.setReleasedHandler(NULL);
   btnR.setReleasedHandler(fishing_click);
   btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
@@ -127,19 +126,13 @@ void fishing_init()
   meter.createSprite(64, 2);
   meter.createPalette(palette);
   meter.fillSprite(12);
-  //background.setColorDepth(4);
-  //background.createSprite(14, 213);
-  //background.createPalette(palette);
-  //background.fillSprite(1);
-  //background.pushSprite(20, 11);
-  //tft.fillRect(17,8,20,219, 0xFDAA);
   
   posy = 64;
   spdy = 1;
   meter_value = 170;
   meter_change = 1;
   ticks = 0;
-  time_out = millis() + 17;
+  fishing_loop(); // Call first frame. Next frame will be called inside loop()
 }
 
 void fishing_loop()
