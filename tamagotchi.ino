@@ -379,7 +379,7 @@ void deep_sleep()
   tft.writecommand(TFT_SLPIN);
   //After using light sleep, you need to disable timer wake, because here use external IO port to wake up
   esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_0, 0);
   delay(200); // This delay is important
   esp_deep_sleep_start();
 }
