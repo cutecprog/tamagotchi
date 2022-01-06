@@ -1,7 +1,8 @@
-// All includes
+ // All includes
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include "Button2.h"
 #include <sys/time.h>
+#include "WiFi.h"
 
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
@@ -60,6 +61,8 @@ RTC_DATA_ATTR struct {
 // Main functions
 void setup(void) {
   //Serial.begin(115200);
+  WiFi.mode(WIFI_OFF);
+  btStop();   // Disable wifi and blutooth
   tft.init();
   init_brightness_control();
   set_brightness(brightness);
