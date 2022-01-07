@@ -200,8 +200,8 @@ void fishing_loop()
 {
   next_frame_time = micros() + 16666;   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
   if (!fishing_paused) {
-    fishing_draw();
     fishing_update();
+    fishing_draw();
   }
   ticks++;
 }
@@ -212,8 +212,6 @@ void fishing_update()
   if (meter_value%222==0)
   meter_change = -meter_change;
 
-  // Move by speed
-  posy += spdy;
   // Accerate up 1 px / 4 frames (14.7 px/s^2)
   if ((btnR.isPressed()) && (ticks%4 == 0))
     spdy -= 1;
@@ -237,6 +235,8 @@ void fishing_update()
   // Limit downward speed to FISHING_MAX_SPD
   else if (spdy < -FISHING_MAX_SPD)
     spdy = -FISHING_MAX_SPD;
+  // Move by speed
+  posy += spdy;
 }
 
 void fishing_draw()
