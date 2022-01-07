@@ -30,7 +30,7 @@
 // All Globals
 TFT_eSPI tft = TFT_eSPI(135, 240); // Invoke custom library
 
-TFT_eSprite fishing_square = TFT_eSprite(&tft);
+TFT_eSprite hook_rect = TFT_eSprite(&tft);
 TFT_eSprite meter = TFT_eSprite(&tft);
 TFT_eSprite background = TFT_eSprite(&tft);
 
@@ -110,7 +110,7 @@ void button_handler(Button2& btn)
         return;
       }
   //else
-  //  btnR action
+  //  btnR hold action
   }
   menu_loop(btn);
 }
@@ -171,13 +171,17 @@ void fishing_init()
   // Palette colour table
   uint16_t palette[16] = 
         { TFT_BLACK,  TFT_ORANGE, 0x7F00,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
-          TFT_ORANGE, TFT_BLUE,   0x2300,  TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
-  fishing_square.setColorDepth(4);
-  fishing_square.createSprite(14, 55);
-  fishing_square.createPalette(palette);
-  fishing_square.fillSprite(2);
-  fishing_square.drawRect(0, 0, 14, 55, 10);
-  fishing_square.drawRect(1, 1, 12, 53, 10);
+          TFT_ORANGE, 0x6C39,   0x2300,  TFT_CYAN,     TFT_RED,    TFT_NAVY,   TFT_YELLOW, TFT_WHITE };
+  hook_rect.setColorDepth(4);
+  hook_rect.createSprite(14, 55);
+  hook_rect.createPalette(palette);
+  hook_rect.fillSprite(2);
+  hook_rect.drawRect(0, 0, 14, 55, 10);
+  hook_rect.drawRect(1, 1, 12, 53, 10);
+  hook_rect.drawRect(0, 0, 2, 2, 9);
+  hook_rect.drawRect(12, 0, 2, 2, 9);
+  hook_rect.drawRect(0, 53, 2, 2, 9);
+  hook_rect.drawRect(12, 53, 2, 2, 9);
   
   meter.setColorDepth(4);
   meter.createSprite(64, 2);
@@ -240,7 +244,7 @@ void fishing_draw()
   tft.drawFastHLine(64, meter_value-meter_change, 64, 0);
   meter.pushSprite(64, meter_value);
 
-  fishing_square.pushSprite(20, posy);
+  hook_rect.pushSprite(20, posy);
   // Top 2px dark blue outline
   tft.drawRect(20,11,14,posy-11, 0x6C39);
   tft.drawRect(21,12,12,posy-11-2, 0x6C39);
