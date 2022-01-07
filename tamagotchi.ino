@@ -50,6 +50,7 @@ uint8_t meter_value;
 int8_t meter_change;
 uint8_t ticks;
 unsigned long next_frame_time;
+unsigned int fps_table[6] = {16667, 16667, 8333, 5556, 4167, 3333};
 
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
@@ -198,12 +199,14 @@ void fishing_init()
 
 void fishing_loop()
 {
-  next_frame_time = micros() + 16666;   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
+  next_frame_time = micros();   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
   if (!fishing_paused) {
     fishing_update();
+    next_frame_time += fps_table[(int)abs(spdy)];
     fishing_draw();
   }
   ticks++;
+  
 }
 
 void fishing_update()
@@ -236,7 +239,7 @@ void fishing_update()
   else if (spdy < -FISHING_MAX_SPD)
     spdy = -FISHING_MAX_SPD;
   // Move by speed
-  posy += spdy;
+  posy += (spdy > 0) ? 1 : (spdy < 0) ? -1 : 0;
 }
 
 void fishing_draw()
@@ -259,8 +262,8 @@ void fishing_draw()
   tft.drawRect(18, 9,18,217, 0xFDAA);
   tft.drawRect(19,10,16,215, 0xFDAA);
   // Debug output
-  tft.drawCentreString("   ",64,0,2); // Moved over to clear the minus
-  tft.drawCentreString(String(spdy),64,0,2);
+  tft.drawCentreString("        ",64,0,2); // Moved over to clear the minus
+  tft.drawCentreString(String(fps_table[(int)abs(spdy)]),64,0,2);
 }
 
 void fishing_click(Button2& btn)
