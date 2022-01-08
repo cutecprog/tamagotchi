@@ -184,11 +184,6 @@ void fishing_init()
   hook_rect.drawRect(0, 53, 2, 2, 9);
   hook_rect.drawRect(12, 53, 2, 2, 9);
   
-  meter.setColorDepth(4);
-  meter.createSprite(64, 2);
-  meter.createPalette(palette);
-  meter.fillSprite(12);
-  
   posy = 64;
   spdy = 1;
   meter_value = 170;
@@ -211,10 +206,6 @@ void fishing_loop()
 
 void fishing_update()
 {
-  meter_value += meter_change;
-  if (meter_value%222==0)
-  meter_change = -meter_change;
-
   // Accerate up 1 px / 4 frames (14.7 px/s^2)
   if ((btnR.isPressed()) && (ticks%4 == 0))
     spdy -= 1;
@@ -263,7 +254,7 @@ void fishing_draw()
   tft.drawRect(19,10,16,215, 0xFDAA);
   // Debug output
   tft.drawCentreString("        ",64,0,2); // Moved over to clear the minus
-  tft.drawCentreString(String(fps_table[int_abs(spdy)]),64,0,2);
+  tft.drawCentreString(String(spdy),64,0,2);
 }
 
 void fishing_click(Button2& btn)
