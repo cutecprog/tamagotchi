@@ -48,7 +48,8 @@ uint8_t posy;
 int8_t spdy;
 uint8_t meter_value;
 int8_t meter_change;
-uint8_t ticks;
+uint8_t ticks60;
+int16_t subticks;
 unsigned long next_frame_time;
 unsigned int fps_table[6] = {16667, 16667, 8333, 5556, 4167, 3333};
 
@@ -188,26 +189,35 @@ void fishing_init()
   spdy = 1;
   meter_value = 170;
   meter_change = 1;
-  ticks = 0;
+  ticks60 = 0;
+  subticks = 0;
   fishing_loop(); // Call first frame. Next frame will be called inside loop()
 }
 
 void fishing_loop()
 {
-  next_frame_time = micros();   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
+  next_frame_time = micros();   // Note time at start of loop
   if (!fishing_paused) {
     fishing_update();
-    next_frame_time += fps_table[int_abs(spdy)];
+    next_frame_time += fps_table[int_abs(spdy)]; // Set offset until next frame based of spdy
     fishing_draw();
   }
-  ticks++;
-  
+  if (spdy == 0)
+    subticks += 60;
+  else
+    subticks += (60/int_abs(spdy));
+  // 60 is secret number
+  if (subticks > 60) {
+    subticks -= 60;
+    ticks60++;
+  }
+  //ticks60++;
 }
 
 void fishing_update()
 {
   // Accerate up 1 px / 4 frames (14.7 px/s^2)
-  if ((btnR.isPressed()) && (ticks%4 == 0))
+  if ((btnR.isPressed()) && (ticks60%4 == 0))
     spdy -= 1;
   // Bounce on ends
   if ((posy >= 169) && (posy < 224)) {
@@ -221,7 +231,7 @@ void fishing_update()
   }
   // Accerate down 1px / 10 frames (5.88 px/s^2)
   // Terminal velocity is FISHING_MAX_SPD (eg 29.4 px/s^2)
-  if ((spdy < FISHING_MAX_SPD) && (ticks%10 == 0))
+  if ((spdy < FISHING_MAX_SPD) && (ticks60%10 == 0))
     spdy++;
   // (optional) Limit upward speed to FISHING_MAX_SPD
   else if (spdy > FISHING_MAX_SPD)
@@ -253,7 +263,7 @@ void fishing_draw()
   tft.drawRect(18, 9,18,217, 0xFDAA);
   tft.drawRect(19,10,16,215, 0xFDAA);
   // Debug output
-  tft.drawCentreString("        ",64,0,2); // Moved over to clear the minus
+  tft.drawCentreString("    ",64,0,2); // Moved over to clear the minus
   tft.drawCentreString(String(spdy),64,0,2);
 }
 
@@ -261,14 +271,13 @@ void fishing_click(Button2& btn)
 {
   if (fishing_paused) {
     fishing_paused = false;
-    tft.drawCentreString("                  ",64,130,4);
+    tft.drawCentreString("                 ",64,130,4);
   } else
     spdy -= 1;
 }
 
 void fishing_pause(Button2& btn)
 {
-  tft.drawCentreString("    L    ",64,224,2);
   if (fishing_paused) {  // Exit game to home screen
     is_fishing = false;
     time_out = millis()+TIME_OUT;
@@ -277,9 +286,8 @@ void fishing_pause(Button2& btn)
     home_screen();
   } else {
     fishing_paused = true;   // Toggle game pause
-    tft.drawCentreString("    Paused    ",64,130,4);
+    tft.drawCentreString("Paused",64,130,4);
   }
-    //tft.fillRect(17,8,20,219, 0xFDAA);  // Redraw borders 
 }
 
 void button_init()
