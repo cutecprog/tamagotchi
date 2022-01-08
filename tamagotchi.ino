@@ -202,7 +202,7 @@ void fishing_loop()
   next_frame_time = micros();   // 60.002 fps (16,667 is more accurate but gotta be above 60 fps)
   if (!fishing_paused) {
     fishing_update();
-    next_frame_time += fps_table[(int)abs(spdy)];
+    next_frame_time += fps_table[int_abs(spdy)];
     fishing_draw();
   }
   ticks++;
@@ -263,7 +263,7 @@ void fishing_draw()
   tft.drawRect(19,10,16,215, 0xFDAA);
   // Debug output
   tft.drawCentreString("        ",64,0,2); // Moved over to clear the minus
-  tft.drawCentreString(String(fps_table[(int)abs(spdy)]),64,0,2);
+  tft.drawCentreString(String(fps_table[int_abs(spdy)]),64,0,2);
 }
 
 void fishing_click(Button2& btn)
@@ -358,6 +358,13 @@ void printHMS(uint32_t t, uint32_t y)
   hms.concat(String(s));
   hms.concat("   ");
   tft.drawCentreString(hms,64,y,2);
+}
+
+int int_abs(int n)
+{
+  if (n < 0)
+    return -n;
+  return n;
 }
 
 // Screen Brightness code
