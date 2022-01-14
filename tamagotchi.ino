@@ -73,6 +73,8 @@ void setup(void) {
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   home_screen();
   button_init();
+  btnL.setChangedHandler(display_click);
+  btnR.setChangedHandler(display_click);
   
   time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
 }
@@ -97,6 +99,22 @@ void loop() {
     if (menu_selection == HOME)
       home_loop(); // update home screen stats (eg clock, battery, etc)
   }
+}
+
+void display_click(Button2& btn)
+{
+  if (btn == btnL)
+    if (btn.isPressed()) {
+      tft.fillRect(0,230,10,10, 0xFDAA);
+    } else {
+      tft.fillRect(0,230,10,10, 0x0000);
+    }
+  else
+    if (btn.isPressed()) {
+      tft.fillRect(125,230,10,10, 0xFDAA);
+    } else {
+      tft.fillRect(125,230,10,10, 0x0000);
+    }
 }
 
 void button_handler(Button2& btn)
