@@ -7,8 +7,8 @@
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
 #define VOLTAGE             34
-#define BUTTON_R            35
-#define BUTTON_L            0
+#define BUTTON_R            0
+#define BUTTON_L            35
 #define TFT_AMBER           0xfca0
 
 #define HOME                128
