@@ -15,7 +15,7 @@
 #define BRIGHTNESS          48
 #define TAMAGOTCHI          192
 
-#define TIME_OUT            20000   // Deep Sleep after 10 seconds
+#define TIME_OUT            10000   // Deep Sleep after 10 seconds
 #define LONG_PRESS          600
 #define MS_PER_FRAME        17      // About 58.82 fps
 
@@ -215,6 +215,16 @@ void fishing_init()
 void fishing_loop()
 {
   next_frame_time = micros();   // Note time at start of loop
+  
+  if (millis() > time_out) { 
+    if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
+      time_out = millis()+TIME_OUT;
+      if (fishing_paused)
+        deep_sleep();
+      else 
+        fishing_paused = true;
+    }
+  }
   if (!fishing_paused) {
     fishing_update();
     next_frame_time += fps_table[int_abs(spdy)]; // Set offset until next frame based of spdy
@@ -287,6 +297,7 @@ void fishing_draw()
 
 void fishing_click(Button2& btn)
 {
+  time_out = millis()+TIME_OUT;
   if (fishing_paused) {
     fishing_paused = false;
     tft.drawCentreString("                 ",64,130,4);
