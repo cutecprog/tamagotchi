@@ -7,8 +7,8 @@
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
 #define VOLTAGE             34
-#define BUTTON_R            35
-#define BUTTON_L            0
+#define BUTTON_R            0
+#define BUTTON_L            35
 #define TFT_AMBER           0xfca0
 
 #define HOME                128
@@ -16,6 +16,7 @@
 #define TAMAGOTCHI          192
 
 #define TIME_OUT            10000   // Deep Sleep after 10 seconds
+#define FISHING_OUT         3000
 #define LONG_PRESS          600
 #define MS_PER_FRAME        17      // About 58.82 fps
 
@@ -40,6 +41,7 @@ String menu = "";
 unsigned char menu_selection;
 int counter;
 uint32_t time_out;
+unsigned int time_offset = TIME_OUT;
 
 // Fishing game globals
 bool is_fishing = false;
@@ -81,19 +83,30 @@ void loop() {
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
-  if (is_fishing) {
-    if (micros() > next_frame_time)  // custom fps 
+  if (is_fishing) { // custom fps
+    if (micros() > next_frame_time)
       fishing_loop();
-    return;
-  }
-  if (millis() > time_out) { 
-    if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
-      deep_sleep();
+    if (millis() > time_out) { 
+      if (fishing_paused) {  // Exit game to home screen
+        is_fishing = false;
+        time_offset = TIME_OUT;
+        reset_time_out();
+        tft.fillScreen(TFT_BLACK);
+        button_init();
+        home_screen();
+      } else {
+        fishing_paused = true;   // Toggle game pause
+        tft.drawCentreString("Paused",64,130,4);
+        reset_time_out();
+      }
     }
-  }
-  if (millis()%1000 == 0) { // 1 fps
-    if (analogRead(VOLTAGE) > CHARGING_VOLTS)
-      reset_time_out();
+  } else if (millis() > time_out) {
+    // When connected to usb the pin reads a value greater than MAX_VOLTS
+    //if (analogRead(VOLTAGE) < CHARGING_VOLTS && !is_fishing)
+    deep_sleep();
+  } else if (millis()%1000 == 0) { // 1 fps
+    //if (analogRead(VOLTAGE) > CHARGING_VOLTS)
+      //reset_time_out();
     if (menu_selection == HOME)
       home_loop(); // update home screen stats (eg clock, battery, etc)
   }
@@ -101,7 +114,7 @@ void loop() {
 
 void reset_time_out()
 {
-  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
+  time_out = millis()+time_offset; // Sleep after TIME_OUT milliseconds
 }
 
 void display_click(Button2& btn)
@@ -112,6 +125,14 @@ void display_click(Button2& btn)
         230,10,10,
         (btn.isPressed()) ? 0xFDAA : 0x0000
   );
+}
+
+void button_init()
+{
+  btnR.setReleasedHandler(button_handler);
+  btnL.setReleasedHandler(button_handler);
+  btnL.setChangedHandler(display_click);
+  btnR.setChangedHandler(display_click);
 }
 
 void button_handler(Button2& btn)
@@ -184,6 +205,8 @@ void fishing_init()
   btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
   fishing_paused = false;
+  time_offset = FISHING_OUT;
+  reset_time_out();
   // Palette colour table
   uint16_t palette[16] = 
         { TFT_BLACK,  TFT_ORANGE, 0x7F00,  TFT_DARKCYAN, TFT_MAROON, TFT_PURPLE, TFT_OLIVE,  TFT_DARKGREY,
@@ -212,15 +235,6 @@ void fishing_loop()
 {
   next_frame_time = micros();   // Note time at start of loop
   
-  if (millis() > time_out) { 
-    if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
-      //time_out = millis()+TIME_OUT;
-      if (fishing_paused)
-        deep_sleep();
-      else 
-        fishing_paused = true;
-    }
-  }
   if (!fishing_paused) {
     fishing_update();
     next_frame_time += fps_table[int_abs(spdy)]; // Set offset until next frame based of spdy
@@ -313,14 +327,6 @@ void fishing_pause(Button2& btn)
     fishing_paused = true;   // Toggle game pause
     tft.drawCentreString("Paused",64,130,4);
   }
-}
-
-void button_init()
-{
-  //btnR.setReleasedHandler(button_handler);
-  //btnL.setReleasedHandler(button_handler);
-  btnL.setChangedHandler(display_click);
-  btnR.setChangedHandler(display_click);
 }
 
 void home_screen()
