@@ -127,21 +127,12 @@ void button_init()
 
 void button_handler(Button2& btn)
 {
-  tft.fillScreen(TFT_BLACK);
-  if (btn.wasPressedFor() > LONG_PRESS) {
-    if (btn == btnL)
-      if (menu_selection == HOME)
-        deep_sleep();
-      else {
-        home_screen();
-        return;
-      }
-  //else
-  //  btnR hold action
-  }
-  menu_loop(btn);
+  if (btn.wasPressedFor() > LONG_PRESS)
+    deep_sleep();
+  else
+    fishing_init();
 }
-
+/*
 void menu_loop(Button2& btn)
 {
   // main switch-case
@@ -186,11 +177,12 @@ void menu_init()
       tft.drawCentreString(menu,64,130,4);
       tft.drawCentreString(String(menu_selection),64,180,4);
   }
-}
+}*/
 
 // Fishing game
 void fishing_init()
 {
+  tft.fillScreen(TFT_BLACK);
   btnR.setReleasedHandler(fishing_click);
   //btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
