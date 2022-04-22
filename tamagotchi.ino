@@ -16,7 +16,7 @@
 #define TAMAGOTCHI          192
 
 #define TIME_OUT            10000   // Deep Sleep after 10 seconds
-#define FISHING_OUT         3000
+#define FISHING_OUT         2000
 #define LONG_PRESS          600
 #define MS_PER_FRAME        17      // About 58.82 fps
 
@@ -102,11 +102,11 @@ void loop() {
     }
   } else if (millis() > time_out) {
     // When connected to usb the pin reads a value greater than MAX_VOLTS
-    //if (analogRead(VOLTAGE) < CHARGING_VOLTS && !is_fishing)
-    deep_sleep();
+    //if (analogRead(VOLTAGE) < CHARGING_VOLTS)
+      deep_sleep();
   } else if (millis()%1000 == 0) { // 1 fps
-    //if (analogRead(VOLTAGE) > CHARGING_VOLTS)
-      //reset_time_out();
+    if (analogRead(VOLTAGE) > CHARGING_VOLTS)
+      reset_time_out();
     if (menu_selection == HOME)
       home_loop(); // update home screen stats (eg clock, battery, etc)
   }
