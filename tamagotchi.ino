@@ -7,8 +7,8 @@
 // All defines
 //#define ADC_EN              14  //ADC_EN is the ADC detection enable port
 #define VOLTAGE             34
-#define BUTTON_R            0
-#define BUTTON_L            35
+#define BUTTON_R            35
+#define BUTTON_L            0
 #define TFT_AMBER           0xfca0
 
 #define HOME                128
@@ -107,18 +107,11 @@ void reset_time_out()
 void display_click(Button2& btn)
 {
   reset_time_out();
-  if (btn == btnL)
-    if (btn.isPressed()) {
-      tft.fillRect(0,230,10,10, 0xFDAA);
-    } else {
-      tft.fillRect(0,230,10,10, 0x0000);
-    }
-  else
-    if (btn.isPressed()) {
-      tft.fillRect(125,230,10,10, 0xFDAA);
-    } else {
-      tft.fillRect(125,230,10,10, 0x0000);
-    }
+  tft.fillRect(
+        (btn == btnL) ? 0 : 125,
+        230,10,10,
+        (btn.isPressed()) ? 0xFDAA : 0x0000
+  );
 }
 
 void button_handler(Button2& btn)
@@ -326,9 +319,8 @@ void button_init()
 {
   //btnR.setReleasedHandler(button_handler);
   //btnL.setReleasedHandler(button_handler);
-  //btnL.setChangedHandler(display_click);
+  btnL.setChangedHandler(display_click);
   btnR.setChangedHandler(display_click);
-  //btnR.setPressedHandler(reset_time_out);
 }
 
 void home_screen()
