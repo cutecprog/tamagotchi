@@ -73,10 +73,8 @@ void setup(void) {
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
   home_screen();
   button_init();
-  btnL.setChangedHandler(display_click);
-  btnR.setChangedHandler(display_click);
   
-  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
+  reset_time_out();
 }
 
 void loop() {
@@ -95,14 +93,20 @@ void loop() {
   }
   if (millis()%1000 == 0) { // 1 fps
     if (analogRead(VOLTAGE) > CHARGING_VOLTS)
-      time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
+      reset_time_out();
     if (menu_selection == HOME)
       home_loop(); // update home screen stats (eg clock, battery, etc)
   }
 }
 
+void reset_time_out()
+{
+  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
+}
+
 void display_click(Button2& btn)
 {
+  reset_time_out();
   if (btn == btnL)
     if (btn.isPressed()) {
       tft.fillRect(0,230,10,10, 0xFDAA);
@@ -119,7 +123,6 @@ void display_click(Button2& btn)
 
 void button_handler(Button2& btn)
 {
-  time_out = millis()+TIME_OUT; // Sleep after TIME_OUT milliseconds
   tft.fillScreen(TFT_BLACK);
   if (btn.wasPressedFor() > LONG_PRESS) {
     if (btn == btnL)
@@ -218,7 +221,7 @@ void fishing_loop()
   
   if (millis() > time_out) { 
     if (analogRead(VOLTAGE) < CHARGING_VOLTS) { // When connected to usb the pin reads a value greater than MAX_VOLTS
-      time_out = millis()+TIME_OUT;
+      //time_out = millis()+TIME_OUT;
       if (fishing_paused)
         deep_sleep();
       else 
@@ -297,7 +300,7 @@ void fishing_draw()
 
 void fishing_click(Button2& btn)
 {
-  time_out = millis()+TIME_OUT;
+  //time_out = millis()+TIME_OUT;
   if (fishing_paused) {
     fishing_paused = false;
     tft.drawCentreString("                 ",64,130,4);
@@ -309,7 +312,7 @@ void fishing_pause(Button2& btn)
 {
   if (fishing_paused) {  // Exit game to home screen
     is_fishing = false;
-    time_out = millis()+TIME_OUT;
+    //time_out = millis()+TIME_OUT;
     tft.fillScreen(TFT_BLACK);
     button_init();
     home_screen();
@@ -321,8 +324,11 @@ void fishing_pause(Button2& btn)
 
 void button_init()
 {
-  btnR.setReleasedHandler(button_handler);
-  btnL.setReleasedHandler(button_handler);
+  //btnR.setReleasedHandler(button_handler);
+  //btnL.setReleasedHandler(button_handler);
+  //btnL.setChangedHandler(display_click);
+  btnR.setChangedHandler(display_click);
+  //btnR.setPressedHandler(reset_time_out);
 }
 
 void home_screen()
