@@ -86,29 +86,19 @@ void loop() {
   if (is_fishing) { // custom fps
     if (micros() > next_frame_time)
       fishing_loop();
-    if (millis() > time_out) { 
-      if (fishing_paused) {  // Exit game to home screen
-        is_fishing = false;
-        time_offset = TIME_OUT;
-        reset_time_out();
-        tft.fillScreen(TFT_BLACK);
-        button_init();
-        home_screen();
-      } else {
-        fishing_paused = true;   // Toggle game pause
-        tft.drawCentreString("Paused",64,130,4);
-        reset_time_out();
-      }
-    }
-  } else if (millis() > time_out) {
-    // When connected to usb the pin reads a value greater than MAX_VOLTS
-    //if (analogRead(VOLTAGE) < CHARGING_VOLTS)
-      deep_sleep();
+    if (millis() > time_out) 
+      if (fishing_paused)
+        fishing_exit();
+      else
+        fishing_pause();
   } else if (millis()%1000 == 0) { // 1 fps
+    // If charging reset time_out
     if (analogRead(VOLTAGE) > CHARGING_VOLTS)
       reset_time_out();
     if (menu_selection == HOME)
       home_loop(); // update home screen stats (eg clock, battery, etc)
+  } else if (millis() > time_out) {
+    deep_sleep();
   }
 }
 
@@ -202,7 +192,7 @@ void menu_init()
 void fishing_init()
 {
   btnR.setReleasedHandler(fishing_click);
-  btnL.setReleasedHandler(fishing_pause);
+  //btnL.setReleasedHandler(fishing_pause);
   is_fishing = true;
   fishing_paused = false;
   time_offset = FISHING_OUT;
@@ -229,6 +219,16 @@ void fishing_init()
   ticks60 = 0;
   subticks = 0;
   fishing_loop(); // Call first frame. Next frame will be called inside loop()
+}
+
+void fishing_exit()
+{
+  is_fishing = false;
+  time_offset = TIME_OUT;
+  reset_time_out();
+  tft.fillScreen(TFT_BLACK);
+  button_init();
+  home_screen();
 }
 
 void fishing_loop()
@@ -315,18 +315,11 @@ void fishing_click(Button2& btn)
     spdy -= 1;
 }
 
-void fishing_pause(Button2& btn)
+void fishing_pause()
 {
-  if (fishing_paused) {  // Exit game to home screen
-    is_fishing = false;
-    //time_out = millis()+TIME_OUT;
-    tft.fillScreen(TFT_BLACK);
-    button_init();
-    home_screen();
-  } else {
-    fishing_paused = true;   // Toggle game pause
-    tft.drawCentreString("Paused",64,130,4);
-  }
+  fishing_paused = true;   // Toggle game pause
+  tft.drawCentreString("Paused",64,130,4);
+  reset_time_out();
 }
 
 void home_screen()
