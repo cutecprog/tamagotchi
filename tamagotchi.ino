@@ -37,9 +37,9 @@ TFT_eSprite background = TFT_eSprite(&tft);
 
 Button2 btnR(BUTTON_R);
 Button2 btnL(BUTTON_L);
-String menu = "";
-unsigned char menu_selection;
-int counter;
+//String menu = "";
+//unsigned char menu_selection;
+//int counter;
 uint32_t time_out;
 unsigned int time_offset = TIME_OUT;
 
@@ -58,9 +58,9 @@ unsigned int fps_table[6] = {16667, 16667, 8333, 5556, 4167, 3333};
 // All SRAM Globals
 RTC_DATA_ATTR timeval age;
 RTC_DATA_ATTR unsigned char brightness = 255;
-RTC_DATA_ATTR struct {
-  int i = 57;
-} tama;
+//RTC_DATA_ATTR struct {
+//  int i = 57;
+//} tama;
 
 // Main functions
 void setup(void) {
@@ -73,7 +73,7 @@ void setup(void) {
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_AMBER, TFT_BLACK);  // Adding a black background colour erases previous text automatically
-  home_screen();
+  home_init();
   button_init();
   
   reset_time_out();
@@ -95,7 +95,6 @@ void loop() {
     // If charging reset time_out
     if (analogRead(VOLTAGE) > CHARGING_VOLTS)
       reset_time_out();
-    if (menu_selection == HOME)
       home_loop(); // update home screen stats (eg clock, battery, etc)
   } else if (millis() > time_out) {
     deep_sleep();
@@ -220,7 +219,7 @@ void fishing_exit()
   reset_time_out();
   tft.fillScreen(TFT_BLACK);
   button_init();
-  home_screen();
+  home_init();
 }
 
 void fishing_loop()
@@ -314,14 +313,10 @@ void fishing_pause()
   reset_time_out();
 }
 
-void home_screen()
+void home_init()
 {
   tft.drawCentreString("    Home    ",64,130,4);
-  tft.drawCentreString(String(tama.i),64,180,4);
   home_loop();
-  menu = "";
-  menu_selection = HOME;
-  counter = 64;
 }
 
 // Called every second in loop()
