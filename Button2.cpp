@@ -102,6 +102,15 @@ unsigned int Button2::getClickType() {
 
 /////////////////////////////////////////////////////////////////
 
+unsigned int Button2::getDownTime() {
+  if (click_count == 0)
+    return 0;
+  return millis() - down_ms;
+}
+
+/////////////////////////////////////////////////////////////////
+
+
 void Button2::loop() {
   if(pin < 0)return;
 

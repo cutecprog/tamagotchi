@@ -73,6 +73,8 @@ class Button2 {
     uint8_t getAttachPin(){return pin;}
     bool operator==(Button2 &rhs);
 
+    unsigned int getDownTime();
+
     void loop();
 };
 /////////////////////////////////////////////////////////////////

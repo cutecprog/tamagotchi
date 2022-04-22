@@ -17,7 +17,7 @@
 
 #define TIME_OUT            10000   // Deep Sleep after 10 seconds
 #define FISHING_OUT         2000
-#define LONG_PRESS          600
+#define LONG_PRESS          800
 #define MS_PER_FRAME        17      // About 58.82 fps
 
 #define CHARGING_VOLTS      2511    // 700/512
@@ -83,6 +83,8 @@ void loop() {
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
+  if (btnR.getDownTime() == LONG_PRESS)
+    display_long_click(btnR);
   if (is_fishing) { // custom fps
     if (micros() > next_frame_time)
       fishing_loop();
@@ -116,6 +118,14 @@ void display_click(Button2& btn)
   );
 }
 
+void display_long_click(Button2& btn)
+{
+  tft.fillRect(
+        (btn == btnL) ? 0 : 125,
+        230,10,10,0xAAFD
+  );
+}
+
 void button_init()
 {
   btnR.setReleasedHandler(button_handler);
@@ -127,7 +137,7 @@ void button_init()
 void button_handler(Button2& btn)
 {
   if (btn.wasPressedFor() > LONG_PRESS)
-    deep_sleep();
+    return;
   else
     fishing_init();
 }
@@ -343,6 +353,7 @@ void home_loop()
   tft.drawCentreString(batt,64,32,2);  // This likely will only display 128 F but I'll leave it to test later
   tft.drawCentreString(String(time_out),64,48,2);
   tft.drawCentreString(String(millis()),64,64,2);
+  //tft.drawCentreString(String(btnR.getDownTime()),64,200,4);
 }
 
 void printHMS(uint32_t t, uint32_t y)
