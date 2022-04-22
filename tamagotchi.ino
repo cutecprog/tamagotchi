@@ -42,6 +42,7 @@ Button2 btnL(BUTTON_L);
 //int counter;
 uint32_t time_out;
 unsigned int time_offset = TIME_OUT;
+bool long_pressing = false;
 
 // Fishing game globals
 bool is_fishing = false;
@@ -83,8 +84,15 @@ void loop() {
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
-  if (btnR.getDownTime() == LONG_PRESS)
-    display_long_click(btnR);
+
+  if (btnR.getDownTime() > LONG_PRESS)
+    if (!long_pressing) {
+      long_pressing = true;
+      display_long_click(btnR);
+    }
+  else if (long_pressing)
+    long_pressing = false;
+
   if (is_fishing) { // custom fps
     if (micros() > next_frame_time)
       fishing_loop();
