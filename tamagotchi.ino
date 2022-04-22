@@ -16,7 +16,8 @@
 #define TAMAGOTCHI          192
 
 #define TIME_OUT            10000   // Deep Sleep after 10 seconds
-#define FISHING_OUT         2000
+#define FISHING_OUT         3500
+#define PAUSE_OUT           1500
 #define LONG_PRESS          800
 #define MS_PER_FRAME        17      // About 58.82 fps
 
@@ -328,6 +329,7 @@ void fishing_pause()
 {
   fishing_paused = true;   // Toggle game pause
   tft.drawCentreString("Paused",64,130,4);
+  time_offset = PAUSE_OUT;
   reset_time_out();
 }
 
