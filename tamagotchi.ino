@@ -84,7 +84,7 @@ void loop() {
   // Run button_handler if pressed
   btnR.loop();
   btnL.loop();
-  display_long_click(btnR); // Appends btn.loop()
+  display_long_press(btnR); // Appends btn.loop()
 
   if (is_fishing) { // custom fps
     if (micros() > next_frame_time)
@@ -120,7 +120,7 @@ void display_click(Button2& btn)
   //lp_displayed = false;
 }
 
-void display_long_click(Button2& btn)
+void display_long_press(Button2& btn)
 {
   static bool lp_displayed = false;
   if (btn.getDownTime() > LONG_PRESS) {
