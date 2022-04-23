@@ -43,7 +43,7 @@ Button2 btnL(BUTTON_L);
 //int counter;
 uint32_t time_out;
 unsigned int time_offset = TIME_OUT;
-bool long_pressing = false;
+bool lp_displayed = false;
 
 // Fishing game globals
 bool is_fishing = false;
@@ -86,13 +86,14 @@ void loop() {
   btnR.loop();
   btnL.loop();
 
-  if (btnR.getDownTime() > LONG_PRESS)
-    if (!long_pressing) {
-      long_pressing = true;
+  if (btnR.getDownTime() > LONG_PRESS) {
+    if (!lp_displayed) {
       display_long_click(btnR);
+      lp_displayed = true;
     }
-  else if (long_pressing)
-    long_pressing = false;
+  } else if (lp_displayed) {
+    lp_displayed = false;
+  }
 
   if (is_fishing) { // custom fps
     if (micros() > next_frame_time)
@@ -125,13 +126,15 @@ void display_click(Button2& btn)
         230,10,10,
         (btn.isPressed()) ? 0xFDAA : 0x0000
   );
+  //lp_displayed = false;
 }
 
 void display_long_click(Button2& btn)
 {
   tft.fillRect(
         (btn == btnL) ? 0 : 125,
-        230,10,10,0xAAFD
+        230,10,10,
+        (btn.isPressed()) ? random(0xFFFF) : 0x0000
   );
 }
 
